@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "DNS Sentinel",
+  "version": "1.0.0",
+  "description": "DNS Sentinel is a Chrome extension that monitors DNS traffic and alerts you when it detects suspicious activity.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Extension is working"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
+
+
