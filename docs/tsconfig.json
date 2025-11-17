@@ -1,0 +1,44 @@
+// docs/tsconfig.json ← create ONLY inside docs/, NOT in the project root!
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": [
+			"ES2022",
+			"WebWorker"
+		],
+		"module": "ESNext",
+		"moduleResolution": "node",
+		// KEY OPTIONS FOR THE DOCUMENTATION STAGE
+		"allowJs": true,
+		"checkJs": false,
+		"noImplicitAny": false,
+		"strict": false,
+		// The main thing is to disable import and type checking.
+		"skipLibCheck": true,
+		"noEmit": true,
+		"allowImportingTsExtensions": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		// The most important thing is to ignore missing modules.
+		"types": [],
+		"typeRoots": [],
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		// Completely disable searching node_modules and @types.
+		"baseUrl": ".",
+		"paths": {
+			"*": [
+				"*",
+				"src/*",
+				"node_modules/*"
+			]
+		}
+	},
+	"include": [
+		"05-implementation/src/**/*.ts",
+		"05-implementation/tests/**/*.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
+}
