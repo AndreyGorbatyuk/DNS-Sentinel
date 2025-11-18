@@ -5,8 +5,6 @@
  * @uses api/metric-result.api.md
  * @uses api/configuration.api.md
  */
-/* import type { MetricResult } from '../../api/metric-result.api.md';
-import type { Configuration } from '../../api/configuration.api.md'; */
 
 import type { MetricResult, Configuration } from '../../../types.ts';
 
