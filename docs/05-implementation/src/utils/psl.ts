@@ -8,13 +8,13 @@
  */
 
 const PUBLIC_SUFFIXES = new Set<string>([
-	// Самые популярные публичные суффиксы (покрывают >99% трафика)
+	// Most popular public suffixes (cover >99% of traffic)
 	'com', 'org', 'net', 'edu', 'gov', 'co', 'io', 'ai', 'app',
 	'ru', 'de', 'uk', 'fr', 'it', 'es', 'jp', 'cn', 'br', 'au',
 	'co.uk', 'com.br', 'com.au', 'co.jp', 'ne.jp', 'or.jp',
 	'ac.uk', 'gov.uk', 'github.io', 'cloudfront.net', 'vercel.app',
 	'pages.dev', 'web.app', 'firebaseapp.com',
-	// Добавьте при необходимости ещё 10–20 самых частых
+	// Add another 10–20 most frequent ones if necessary
 ]);
 
 /**
@@ -27,7 +27,7 @@ export function extractRegistrableDomain(hostname: string): string {
 	const lower = hostname.toLowerCase();
 	const parts = lower.split('.');
 
-	// IP-адреса и localhost сразу возвращаем
+	// Return IP addresses and localhost immediately
 	if (parts.length === 4 && parts.every(p => /^\d+$/.test(p) && +p <= 255)) {
 		return lower;
 	}
@@ -35,7 +35,7 @@ export function extractRegistrableDomain(hostname: string): string {
 		return 'localhost';
 	}
 
-	// Ищем самый длинный публичный суффикс
+	// Search for the longest public suffix
 	for (let i = parts.length - 1; i > 0; i--) {
 		const suffix = parts.slice(i).join('.');
 		if (PUBLIC_SUFFIXES.has(suffix)) {
@@ -44,7 +44,7 @@ export function extractRegistrableDomain(hostname: string): string {
 		}
 	}
 
-	// Если ничего не нашли — стандартный fallback (последние две метки)
+	// If nothing is found — standard fallback (last two tags)
 	if (parts.length > 2) {
 		return parts.slice(-2).join('.');
 	}

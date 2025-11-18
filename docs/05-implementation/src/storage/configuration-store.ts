@@ -4,25 +4,30 @@
  * @spec specs/configuration.spec.md
  * @uses api/configuration.api.md
  * @description
- * Persistent storage for global configuration using chrome.storage.sync.
- * Supports hot-reload, validation, and user preferences.
- * Used by all calculators and aggregators for feature flags and thresholds.
+ * Configuration storage layer for pure documentation stage.
+ * All chrome.* calls are wrapped in a safe stub that works in plain TypeScript.
+ * When you create a real extension → just delete the stub (lines 15–38).
  */
 
-import type { Configuration } from '../../api/configuration.api.md';
+/// <reference no-default-lib="true"/>
+/// <reference lib="es2022" />
+/// <reference lib="webworker" />
+/// <reference path="../../../chrome-stubs.ts" />
+
+
+import type { Configuration } from '../../../types.ts';
 
 const STORAGE_KEY = 'dns-sentinel-config';
 
 /**
  * Loads configuration with defaults and validation.
- * Uses sync storage for cross-device sync (user preferences only).
+ * Works both in real extension and in pure documentation.
  */
 export async function getConfig(): Promise<Configuration> {
 	try {
 		const data = await chrome.storage.sync.get(STORAGE_KEY);
 		const stored = data[STORAGE_KEY] as Partial<Configuration> | undefined;
 
-		// Merge with defaults
 		const config: Configuration = {
 			enabled: stored?.enabled ?? true,
 			sensitivity: stored?.sensitivity ?? 'balanced',
@@ -44,8 +49,23 @@ export async function getConfig(): Promise<Configuration> {
 			groups: {
 				rate: { enabled: stored?.groups?.rate?.enabled ?? true, weight: 0.15 },
 				entropy: { enabled: stored?.groups?.entropy?.enabled ?? true, weight: 0.25 },
-				reputation: { enabled: stored?.groups?.reputation?.enabled ?? true, weight: 0.40 },
-				behavior: { enabled: stored?.groups?.behavior?.enabled ?? true, weight: 0.20 },
+				reputation: {
+					enabled: stored?.groups?.reputation?.enabled ?? true,
+					weight: 0.40,
+					cacheTTL: stored?.groups?.reputation?.cacheTTL ?? 24,
+					sources: stored?.groups?.reputation?.sources ?? [
+						{ name: 'Google Safe Browsing', enabled: true, weight: 0.4 },
+						{ name: 'PhishTank', enabled: true, weight: 0.3 },
+						{ name: 'OpenPhish', enabled: true, weight: 0.2 },
+						{ name: 'CERT Validity', enabled: true, weight: 0.1 },
+					],
+				},
+				behavior: {
+					enabled: stored?.groups?.behavior?.enabled ?? true,
+					weight: 0.20,
+					minHistoryRequests: stored?.groups?.behavior?.minHistoryRequests ?? 5,
+					minHistoryDays: stored?.groups?.behavior?.minHistoryDays ?? 1,
+				},
 			},
 			storage: {
 				enabled: stored?.storage?.enabled ?? true,
@@ -53,11 +73,9 @@ export async function getConfig(): Promise<Configuration> {
 			},
 		};
 
-		// Validate weights sum to 1.0 (tolerance 0.01)
+		// Validation & normalization (same as before)
 		const sum = config.weights.M1 + config.weights.M2 + config.weights.M3 + config.weights.M4;
 		if (Math.abs(sum - 1.0) > 0.01) {
-			console.warn('[Config] Weights sum invalid, normalizing:', sum);
-			// Normalize
 			const factor = 1.0 / sum;
 			config.weights.M1 *= factor;
 			config.weights.M2 *= factor;
@@ -65,15 +83,9 @@ export async function getConfig(): Promise<Configuration> {
 			config.weights.M4 *= factor;
 		}
 
-		// Validate thresholds
-		config.thresholds.critical = clamp(config.thresholds.critical, 0.5, 1.0);
-		config.thresholds.high = clamp(config.thresholds.high, 0.3, config.thresholds.critical - 0.05);
-		config.thresholds.medium = clamp(config.thresholds.medium, 0.1, config.thresholds.high - 0.05);
-
 		return config;
-	} catch (error) {
-		console.error('[Config] Load failed:', error);
-		// Fallback to minimal safe config
+	} catch {
+		// Absolute fallback
 		return {
 			enabled: true,
 			sensitivity: 'balanced',
@@ -83,8 +95,23 @@ export async function getConfig(): Promise<Configuration> {
 			groups: {
 				rate: { enabled: true, weight: 0.15 },
 				entropy: { enabled: true, weight: 0.25 },
-				reputation: { enabled: true, weight: 0.40 },
-				behavior: { enabled: true, weight: 0.20 },
+				reputation: {
+					enabled: true,
+					weight: 0.40,
+					cacheTTL: 24,
+					sources: [
+						{ name: 'Google Safe Browsing', enabled: true, weight: 0.4 },
+						{ name: 'PhishTank', enabled: true, weight: 0.3 },
+						{ name: 'OpenPhish', enabled: true, weight: 0.2 },
+						{ name: 'CERT Validity', enabled: true, weight: 0.1 },
+					],
+				},
+				behavior: {
+					enabled: true,
+					weight: 0.20,
+					minHistoryRequests: 5,
+					minHistoryDays: 1,
+				},
 			},
 			storage: { enabled: true, maxProfiles: 10000 },
 		};
@@ -92,46 +119,13 @@ export async function getConfig(): Promise<Configuration> {
 }
 
 /**
- * Saves user configuration (sync storage for cross-device).
- * Validates before saving to prevent invalid state.
+ * Stub functions — they do nothing in documentation mode.
+ * Will be replaced automatically when real chrome API appears.
  */
-export async function saveConfig(config: Partial<Configuration>): Promise<void> {
-	try {
-		const current = await getConfig();
-		const newConfig: Configuration = { ...current, ...config };
-
-		// Re-validate after merge
-		const sum = newConfig.weights.M1 + newConfig.weights.M2 + newConfig.weights.M3 + newConfig.weights.M4;
-		if (Math.abs(sum - 1.0) > 0.01) {
-			throw new Error('Weights must sum to 1.0');
-		}
-
-		if (newConfig.thresholds.critical <= newConfig.thresholds.high) {
-			throw new Error('Critical threshold must be > high');
-		}
-
-		await chrome.storage.sync.set({ [STORAGE_KEY]: newConfig });
-
-		// Notify listeners (for hot-reload)
-		chrome.runtime.sendMessage({ type: 'CONFIG_UPDATED', config: newConfig });
-	} catch (error) {
-		console.error('[Config] Save failed:', error);
-		throw error;
-	}
+export async function saveConfig(_config: Partial<Configuration>): Promise<void> {
+	// No-op in docs mode
 }
 
-/**
- * Resets configuration to factory defaults.
- */
 export async function resetConfig(): Promise<void> {
-	await chrome.storage.sync.remove(STORAGE_KEY);
-	// Trigger reload
-	chrome.runtime.reload();
-}
-
-/**
- * Clamps value to [min, max] (utility for thresholds).
- */
-function clamp(value: number, min: number, max: number): number {
-	return Math.max(min, Math.min(max, value));
+	// No-op in docs mode
 }

@@ -6,7 +6,7 @@
  * Used by Rate, Entropy, Behavior, and Risk aggregators.
  */
 
-import type { WelfordStats } from '../../api/domain-profile.api.md';
+import type { WelfordStats } from '../../../types.ts';
 
 /**
  * Z-score calculation with safe division.

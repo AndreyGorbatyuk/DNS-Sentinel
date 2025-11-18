@@ -7,10 +7,12 @@
  * @uses api/domain-profile.api.md
  * @uses api/configuration.api.md
  */
-import type { RequestContext } from '../../api/request-context.api.md';
+/* import type { RequestContext } from '../../api/request-context.api.md';
 import type { MetricResult } from '../../api/metric-result.api.md';
 import type { DomainProfile } from '../../api/domain-profile.api.md';
-import type { Configuration } from '../../api/configuration.api.md';
+import type { Configuration } from '../../api/configuration.api.md'; */
+
+import type { RequestContext, MetricResult, DomainProfile, Configuration } from '../../../types.ts'
 
 import { getDomainProfile, updateDomainProfile } from '../storage/domain-statistics.ts';
 import { getConfig } from '../storage/configuration-store.ts';
