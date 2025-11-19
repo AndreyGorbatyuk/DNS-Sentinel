@@ -49,6 +49,9 @@ declare global {
 		alarms?: ChromeAlarms;
 		webRequest?: ChromeWebRequest;
 	};
+
+	// Для тестового окружения
+	var global: typeof globalThis;
 }
 
 // Пустой export чтобы файл считался модулем
