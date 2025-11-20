@@ -37,7 +37,7 @@
 	"include": [
 		"05-implementation/src/**/*.ts",
 		"05-implementation/tests/**/*.ts"
-	],
+, "vitest-stubs.d.ts"	],
 	"exclude": [
 		"node_modules"
 	]
