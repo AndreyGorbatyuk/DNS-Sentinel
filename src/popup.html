@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>DNS Sentinel</title>
+	<style>
+		body {
+			width: 400px;
+			padding: 16px;
+			font-family: system-ui, -apple-system, sans-serif;
+			margin: 0;
+		}
+		h1 {
+			font-size: 18px;
+			margin: 0 0 16px 0;
+		}
+		.domain-list {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+		.domain-item {
+			padding: 8px;
+			border-bottom: 1px solid #eee;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.domain-name {
+			font-weight: 500;
+		}
+		.risk-score {
+			font-size: 14px;
+			color: #666;
+		}
+		.risk-high {
+			color: #d32f2f;
+		}
+		.risk-medium {
+			color: #f57c00;
+		}
+		.risk-low {
+			color: #388e3c;
+		}
+		.empty {
+			text-align: center;
+			color: #999;
+			padding: 32px;
+		}
+	</style>
+</head>
+<body>
+	<h1>DNS Sentinel</h1>
+	<ul id="domain-list" class="domain-list"></ul>
+	<script type="module" src="./popup.ts"></script>
+</body>
+</html>
+
