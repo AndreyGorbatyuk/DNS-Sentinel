@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Background Demo</title>
+	<style>
+		body {
+			margin: 20px;
+			font: 14px/1.6 monospace;
+			background: #1e1e1e;
+			color: #d4d4d4;
+		}
+
+		h1 {
+			font-size: 18px;
+			margin: 0 0 16px;
+			color: #4ec9b0;
+		}
+
+		button {
+			padding: 10px 20px;
+			background: #0e639c;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			font: 14px monospace;
+			margin-bottom: 16px;
+		}
+
+		button:hover {
+			background: #1177bb;
+		}
+
+		#log {
+			background: #252526;
+			padding: 12px;
+			border: 1px solid #3c3c3c;
+			border-radius: 4px;
+			white-space: pre-wrap;
+			min-height: 400px;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>DNS Sentinel Background Demo</h1>
+	<button id="run">Run Pipeline Test</button>
+	<pre id="log">Ready. Click "Run" to start...</pre>
+	<script type="module" src="background-demo.js"></script>
+</body>
+
+</html>
