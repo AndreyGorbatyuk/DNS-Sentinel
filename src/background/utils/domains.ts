@@ -1,4 +1,4 @@
-import { extractRegistrableDomain, isSubdomain } from './psl.ts';
+import { extractRegistrableDomain, isSubdomain } from './psl.js';
 
 export function normalizeDomain(input: string): string {
 	if (!input || typeof input !== 'string') {

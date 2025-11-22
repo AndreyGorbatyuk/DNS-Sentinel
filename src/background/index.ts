@@ -1,11 +1,11 @@
-import type { RequestContext } from '../types/index.ts';
-import { normalizeDomain } from './utils/domains.ts';
-import { RateMetricCalculator } from './analysis/rate-calculator.ts';
-import { EntropyMetricCalculator } from './analysis/entropy-calculator.ts';
-import { ReputationMetricCalculator } from './analysis/reputation-calculator.ts';
-import { BehaviorMetricCalculator } from './analysis/behavior-calculator.ts';
-import { RiskAggregator } from './aggregators/risk-aggregator.ts';
-import { getConfig } from './storage/configuration-store.ts';
+import type { RequestContext } from '../types/index.js';
+import { normalizeDomain } from './utils/domains.js';
+import { RateMetricCalculator } from './analysis/rate-calculator.js';
+import { EntropyMetricCalculator } from './analysis/entropy-calculator.js';
+import { ReputationMetricCalculator } from './analysis/reputation-calculator.js';
+import { BehaviorMetricCalculator } from './analysis/behavior-calculator.js';
+import { RiskAggregator } from './aggregators/risk-aggregator.js';
+import { getConfig } from './storage/configuration-store.js';
 
 const rateCalc = new RateMetricCalculator();
 const entropyCalc = new EntropyMetricCalculator();

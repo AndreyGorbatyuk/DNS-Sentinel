@@ -1,4 +1,4 @@
-import type { Configuration } from '../../types/index.ts';
+import type { Configuration } from '../../types/index.js';
 
 const STORAGE_KEY = 'dns-sentinel-config';
 

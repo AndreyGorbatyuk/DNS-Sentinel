@@ -1,4 +1,4 @@
-import type { DomainProfile } from './types/index.ts';
+import type { DomainProfile } from './types/index.js';
 
 interface DomainRisk {
 	domain: string;

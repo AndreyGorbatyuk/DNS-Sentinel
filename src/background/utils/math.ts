@@ -1,4 +1,4 @@
-import type { WelfordStats } from '../../types/index.ts';
+import type { WelfordStats } from '../../types/index.js';
 
 export function zScore(value: number, mean: number, stdDev: number): number {
 	return stdDev > 0 ? (value - mean) / stdDev : 0;

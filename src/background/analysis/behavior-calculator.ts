@@ -1,7 +1,7 @@
-import type { RequestContext, MetricResult, DomainProfile, Configuration } from '../../types/index.ts';
-import { getDomainProfile, updateDomainProfile } from '../storage/domain-statistics.ts';
-import { getConfig } from '../storage/configuration-store.ts';
-import { sigmoid, varianceFromM2, computeZScore } from '../utils/normalization.ts';
+import type { RequestContext, MetricResult, DomainProfile, Configuration } from '../../types/index.js';
+import { getDomainProfile, updateDomainProfile } from '../storage/domain-statistics.js';
+import { getConfig } from '../storage/configuration-store.js';
+import { sigmoid, varianceFromM2, computeZScore } from '../utils/normalization.js';
 
 interface BehaviorStats {
 	count: number;
@@ -44,6 +44,20 @@ export class BehaviorMetricCalculator {
 			};
 		}
 
+		// Initialize optional properties if they don't exist
+		if (!profile.accessHours) {
+			profile.accessHours = new Array(this.HOURS_IN_DAY).fill(0);
+		}
+		if (!profile.dayFrequencies) {
+			profile.dayFrequencies = new Array(this.DAYS_IN_WEEK).fill(0);
+		}
+		if (!profile.typicalReferrers) {
+			profile.typicalReferrers = [];
+		}
+		if (!profile.stats.interArrival) {
+			profile.stats.interArrival = { count: 0, mean: 0, M2: 0 };
+		}
+
 		const now = context.timestamp;
 		const hour = new Date(now).getHours();
 		const day = new Date(now).getDay();
@@ -67,10 +81,11 @@ export class BehaviorMetricCalculator {
 		const pathScore = profile.directAccessToSensitive && isSensitive ? 0.8 : 0.0;
 
 		const interArrival = this.computeInterArrival(profile.lastSeen, now);
+		const interArrivalStats = profile.stats.interArrival;
 		const zScore = computeZScore(
 			interArrival,
-			profile.stats.interArrival.mean,
-			varianceFromM2(profile.stats.interArrival)
+			interArrivalStats.mean,
+			varianceFromM2(interArrivalStats)
 		);
 
 		const rawScore =
@@ -103,11 +118,11 @@ export class BehaviorMetricCalculator {
 			profile.directAccessToSensitive = true;
 		}
 
-		const delta = interArrival - profile.stats.interArrival.mean;
-		profile.stats.interArrival.count += 1;
-		profile.stats.interArrival.mean += delta / profile.stats.interArrival.count;
-		const delta2 = interArrival - profile.stats.interArrival.mean;
-		profile.stats.interArrival.M2 += delta * delta2;
+		const delta = interArrival - interArrivalStats.mean;
+		interArrivalStats.count += 1;
+		interArrivalStats.mean += delta / interArrivalStats.count;
+		const delta2 = interArrival - interArrivalStats.mean;
+		interArrivalStats.M2 += delta * delta2;
 
 		profile.lastSeen = now;
 
@@ -131,7 +146,7 @@ export class BehaviorMetricCalculator {
 		for (const r of referrers) {
 			freq.set(r, (freq.get(r) || 0) + 1);
 		}
-		return [...freq.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+		return Array.from(freq.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
 	}
 
 	private isSimilarDomain(a: string, b: string | null): boolean {

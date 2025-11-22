@@ -1,7 +1,7 @@
-import type { RequestContext, MetricResult, DomainProfile, Configuration } from '../../types/index.ts';
-import { sigmoid, varianceFromM2, computeZScore } from '../utils/normalization.ts';
-import { getDomainProfile, updateDomainProfile } from '../storage/domain-statistics.ts';
-import { getConfig } from '../storage/configuration-store.ts';
+import type { RequestContext, MetricResult, DomainProfile, Configuration } from '../../types/index.js';
+import { sigmoid, varianceFromM2, computeZScore } from '../utils/normalization.js';
+import { getDomainProfile, updateDomainProfile } from '../storage/domain-statistics.js';
+import { getConfig } from '../storage/configuration-store.js';
 
 interface RateStats {
 	count: number;

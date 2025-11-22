@@ -1,6 +1,6 @@
-import type { MetricResult, DomainProfile, Configuration } from '../../types/index.ts';
-import { getDomainProfile } from '../storage/domain-statistics.ts';
-import { getConfig } from '../storage/configuration-store.ts';
+import type { MetricResult, DomainProfile, Configuration } from '../../types/index.js';
+import { getDomainProfile } from '../storage/domain-statistics.js';
+import { getConfig } from '../storage/configuration-store.js';
 
 interface ReputationSource {
 	name: string;

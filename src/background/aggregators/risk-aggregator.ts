@@ -1,5 +1,5 @@
-import type { MetricResult, Configuration } from '../../types/index.ts';
-import { getConfig } from '../storage/configuration-store.ts';
+import type { MetricResult, Configuration } from '../../types/index.js';
+import { getConfig } from '../storage/configuration-store.js';
 
 interface Contribution {
 	id: string;

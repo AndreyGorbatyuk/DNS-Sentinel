@@ -1,4 +1,4 @@
-import type { WelfordStats } from '../../types/index.ts';
+import type { WelfordStats } from '../../types/index.js';
 
 export function sigmoid(x: number): number {
 	return 1 / (1 + Math.exp(-x));

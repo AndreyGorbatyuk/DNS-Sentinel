@@ -1,5 +1,5 @@
-import type { DomainProfile, Configuration } from '../../types/index.ts';
-import { getConfig } from './configuration-store.ts';
+import type { DomainProfile, Configuration } from '../../types/index.js';
+import { getConfig } from './configuration-store.js';
 
 const STORAGE_KEYS = {
 	profile(domain: string): string {
