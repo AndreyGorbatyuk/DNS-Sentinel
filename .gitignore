@@ -5,3 +5,8 @@ dist/
 .vscode/
 .idea/
 .cursor
+
+# Compiled JavaScript files (TypeScript output)
+src/**/*.js
+test/**/*.js
+benchmark/**/*.js
