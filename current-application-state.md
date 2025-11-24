@@ -1,6 +1,6 @@
 # DNS Sentinel — Application State & Guide
 
-## Current application state on 20.11.2025
+## Current application state on 24.11.2025
 
 ### Project structure
 
@@ -182,14 +182,38 @@ pnpm format
 
 ### Pre-deployment checklist
 
-- [ ] Replace placeholder icon files with real icons
+**Code Quality:**
+- [x] Fix all linting errors: `pnpm lint` (completed - all Biome suggestions fixed, commit e5fdf2f)
+- [x] Apply code formatting: `pnpm format` (completed - all files formatted)
+- [x] Organize imports across all files (completed - imports sorted alphabetically)
+- [x] Replace `any` types with proper types (completed - proper types added in tests/benchmarks)
+- [x] Update Node.js imports to use `node:` protocol (completed - vite.config.ts updated)
+- [ ] Run all tests: `pnpm test` (⚠️ Some tests failing - needs investigation)
+- [ ] Verify build succeeds: `pnpm build` (⚠️ TypeScript errors in tests - needs fixes)
+- [ ] Run benchmarks: `pnpm test --bench`
+
+**Extension Assets:**
+- [ ] Replace placeholder icon files with real icons (16x16, 48x48, 128x128 PNG)
 - [ ] Update `version` in `src/manifest.json`
-- [ ] Test extension in Chrome
-- [ ] Run all tests: `pnpm test`
-- [ ] Check for lint errors: `pnpm lint`
-- [ ] Verify build succeeds: `pnpm build`
-- [ ] Test popup functionality
-- [ ] Test background service worker
+- [ ] Add extension description and screenshots for Chrome Web Store
+
+**Current Limitations Fixes:**
+- [ ] Implement risk history tracking in background service worker (write to `riskHistory` in domain profiles - addresses limitation #2)
+- [ ] Integrate real reputation APIs or configure API endpoints (PhishTank, Google Safe Browsing - addresses limitation #3)
+- [ ] Implement request blocking logic for high-risk domains (optional - currently only logs warnings - addresses limitation #4)
+- [ ] Add user notification system for critical risks (alerts when risk score exceeds thresholds)
+
+**Functionality Testing:**
+- [ ] Test extension in Chrome (load unpacked from `dist/`)
+- [ ] Test popup functionality (displays top 5 riskiest domains)
+- [ ] Test background service worker (webRequest interception)
+- [ ] Verify domain risk calculations work correctly
+- [ ] Test with various domain types (legitimate, suspicious, malicious)
+
+**Documentation:**
+- [ ] Update README.md with installation instructions
+- [ ] Add user guide/documentation
+- [ ] Document configuration options (if applicable)
 
 ---
 
