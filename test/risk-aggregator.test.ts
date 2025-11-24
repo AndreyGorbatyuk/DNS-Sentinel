@@ -6,14 +6,14 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { RiskAggregator } from '../src/background/aggregators/risk-aggregator.ts';
-import type { Configuration, MetricResult } from '../src/types/index.ts';
+import { RiskAggregator } from '../src/background/aggregators/risk-aggregator.js';
+import type { Configuration, MetricResult } from '../src/types/index.js';
 
-vi.mock('../src/background/storage/configuration-store.ts', () => ({
+vi.mock('../src/background/storage/configuration-store.js', () => ({
 	getConfig: vi.fn(),
 }));
 
-import { getConfig } from '../src/background/storage/configuration-store.ts';
+import { getConfig } from '../src/background/storage/configuration-store.js';
 
 describe('RiskAggregator', () => {
 	let aggregator: RiskAggregator;

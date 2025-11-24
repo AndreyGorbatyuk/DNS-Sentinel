@@ -6,14 +6,14 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ReputationMetricCalculator } from '../src/background/analysis/reputation-calculator.ts';
-import type { Configuration, DomainProfile } from '../src/types/index.ts';
+import { ReputationMetricCalculator } from '../src/background/analysis/reputation-calculator.js';
+import type { Configuration, DomainProfile } from '../src/types/index.js';
 
-vi.mock('../src/background/storage/configuration-store.ts', () => ({
+vi.mock('../src/background/storage/configuration-store.js', () => ({
 	getConfig: vi.fn(),
 }));
 
-vi.mock('../src/background/storage/domain-statistics.ts', () => ({
+vi.mock('../src/background/storage/domain-statistics.js', () => ({
 	getDomainProfile: vi.fn(),
 }));
 
@@ -31,8 +31,8 @@ const mockChromeStorage = {
 // Mock fetch for API calls
 (globalThis as any).fetch = vi.fn();
 
-import { getConfig } from '../src/background/storage/configuration-store.ts';
-import { getDomainProfile } from '../src/background/storage/domain-statistics.ts';
+import { getConfig } from ../src/background/storage/configuration-store.js';
+import { getDomainProfile } from '../src/background/storage/domain-statistics.js';
 
 describe('ReputationMetricCalculator', () => {
 	let calculator: ReputationMetricCalculator;

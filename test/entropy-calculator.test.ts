@@ -6,14 +6,14 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { EntropyMetricCalculator } from '../src/background/analysis/entropy-calculator.ts';
-import type { Configuration } from '../src/types/index.ts';
+import { EntropyMetricCalculator } from '../src/background/analysis/entropy-calculator.js';
+import type { Configuration } from '../src/types/index.js';
 
-vi.mock('../src/background/storage/configuration-store.ts', () => ({
+vi.mock('../src/background/storage/configuration-store.js', () => ({
 	getConfig: vi.fn(),
 }));
 
-import { getConfig } from '../src/background/storage/configuration-store.ts';
+import { getConfig } from '../src/background/storage/configuration-store.js';
 
 describe('EntropyMetricCalculator', () => {
 	let calculator: EntropyMetricCalculator;

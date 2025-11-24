@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { DomainProfile, WelfordStats } from '../src/types/index.ts';
+import type { DomainProfile, WelfordStats } from '../src/types/index.js';
 
 // Mock chrome.storage.local
 const mockChromeStorage = {
