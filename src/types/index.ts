@@ -106,7 +106,7 @@ export interface DomainProfile {
 		score: number;
 		timestamp: number;
 	}>;
-	riskHistory?: number[];
+	riskHistory?: Array<{ timestamp: number; riskScore: number }>;
 	userWhitelisted?: boolean;
 	userBlacklisted?: boolean;
 	_version?: number;
