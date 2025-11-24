@@ -7,6 +7,7 @@ import { ReputationMetricCalculator } from './analysis/reputation-calculator.js'
 import { getConfig } from './storage/configuration-store.js';
 import { getDomainProfile, updateDomainProfile } from './storage/domain-statistics.js';
 import { normalizeDomain } from './utils/domains.js';
+import { notifyCriticalRisk } from './utils/notifier.js';
 
 const rateCalc = new RateMetricCalculator();
 const entropyCalc = new EntropyMetricCalculator();
@@ -40,8 +41,11 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 			const { riskScore, confidence } = await riskAgg.aggregate([m1, m2, m3, m4]);
 
-			const finalRiskLevel = riskScore >= config.thresholds.critical ? 'critical' : null;
-			if (finalRiskLevel === 'critical' || riskScore >= 0.95) {
+			if (riskScore >= config.thresholds.critical || riskScore >= 0.90) {
+				notifyCriticalRisk(domain, riskScore).catch(console.error);
+			}
+
+			if (riskScore >= config.thresholds.critical || riskScore >= 0.95) {
 				console.log('BLOCKED:', domain);
 				return { cancel: true };
 			}

@@ -202,7 +202,7 @@ pnpm format
 - [x] Update popup.ts to read new riskHistory format (objects with timestamp and riskScore)
 - [x] Integrate real reputation APIs or configure API endpoints (PhishTank, Google Safe Browsing, OpenPhish - addresses limitation #2)
 - [x] Implement request blocking logic for high-risk domains (blocking implemented for critical risks - addresses limitation #3)
-- [ ] Add user notification system for critical risks (alerts when risk score exceeds thresholds)
+- [x] Add user notification system for critical risks (alerts when risk score exceeds thresholds) ✅ Completed: Chrome notifications with throttling, click handler, sound, and privacy settings
 
 **Functionality Testing:**
 - [ ] Test extension in Chrome (load unpacked from `dist/`)
@@ -424,7 +424,7 @@ pnpm test --bench
 ### Recommended next steps
 
 1. ~~Add real icon files (16x16, 48x48, 128x128 PNG)~~ ✅ Completed
-2. Add user notification system for critical risks
+2. ~~Add user notification system for critical risks~~ ✅ Completed
 3. ~~Implement request blocking for high-risk domains (optional)~~ ✅ Completed
 4. Add options page for configuration (if needed)
 5. Set up CI/CD for automated testing
