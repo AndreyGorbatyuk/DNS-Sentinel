@@ -17,7 +17,7 @@ DNS-Sentinel/
 │   ├── popup.ts                 # Popup logic (vanilla JS)
 │   ├── manifest.json            # Chrome Extension Manifest V3
 │   ├── types/index.ts           # Single source of truth for types
-│   └── icons/                   # Extension icons (placeholder)
+│   └── icons/                   # Extension icons (PNG: 16x16, 48x48, 128x128, 256x256)
 ├── test/                         # Unit tests (flat structure)
 ├── benchmark/                    # Performance benchmarks
 ├── package.json                  # Dependencies & scripts
@@ -56,7 +56,7 @@ DNS-Sentinel/
 
 ### Current limitations
 
-1. Icon files are placeholders (need real PNG files)
+1. ~~Icon files are placeholders (need real PNG files)~~ ✅ Fixed: Real PNG icons with red shield design
 2. External reputation APIs are mocked (PhishTank, GSB disabled by default)
 3. No blocking logic — currently only logs warnings
 
@@ -193,7 +193,7 @@ pnpm format
 - [ ] Run benchmarks: `pnpm test --bench`
 
 **Extension Assets:**
-- [ ] Replace placeholder icon files with real icons (16x16, 48x48, 128x128 PNG)
+- [x] Replace placeholder icon files with real icons (16x16, 48x48, 128x128 PNG) (completed - red shield with DNS text)
 - [ ] Update `version` in `src/manifest.json`
 - [ ] Add extension description and screenshots for Chrome Web Store
 
@@ -417,13 +417,13 @@ pnpm test --bench
 
 ### Current issues
 
-1. Icons are placeholders — replace with real PNG files
+1. ~~Icons are placeholders — replace with real PNG files~~ ✅ Fixed
 2. No blocking — currently only logs; add blocking logic if needed
 3. Reputation APIs mocked — external APIs disabled by default
 
 ### Recommended next steps
 
-1. Add real icon files (16x16, 48x48, 128x128 PNG)
+1. ~~Add real icon files (16x16, 48x48, 128x128 PNG)~~ ✅ Completed
 2. Add user notification system for critical risks
 3. Implement request blocking for high-risk domains (optional)
 4. Add options page for configuration (if needed)
@@ -441,4 +441,4 @@ The application is production-ready with:
 - Code quality tools (Biome)
 - Hot reload development workflow
 
-You can start development immediately with `pnpm dev` and deploy to Chrome Web Store after replacing icons and testing thoroughly.
+You can start development immediately with `pnpm dev` and deploy to Chrome Web Store after testing thoroughly.
