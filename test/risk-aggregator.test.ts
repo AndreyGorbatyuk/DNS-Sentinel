@@ -5,7 +5,7 @@
  * @uses types.ts
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RiskAggregator } from '../src/background/aggregators/risk-aggregator.js';
 import type { Configuration, MetricResult } from '../src/types/index.js';
 
@@ -31,22 +31,22 @@ describe('RiskAggregator', () => {
 				allowTelemetry: false,
 			},
 			thresholds: {
-				critical: 0.80,
-				high: 0.60,
-				medium: 0.40,
+				critical: 0.8,
+				high: 0.6,
+				medium: 0.4,
 			},
 			weights: {
 				M1: 0.15,
 				M2: 0.25,
-				M3: 0.40,
-				M4: 0.20,
+				M3: 0.4,
+				M4: 0.2,
 			},
 			groups: {
 				rate: { enabled: true, weight: 0.15 },
 				entropy: { enabled: true, weight: 0.25 },
 				reputation: {
 					enabled: true,
-					weight: 0.40,
+					weight: 0.4,
 					cacheTTL: 24,
 					sources: [
 						{ name: 'Google Safe Browsing', enabled: true, weight: 0.4 },
@@ -57,7 +57,7 @@ describe('RiskAggregator', () => {
 				},
 				behavior: {
 					enabled: true,
-					weight: 0.20,
+					weight: 0.2,
 					minHistoryRequests: 5,
 					minHistoryDays: 1,
 				},
@@ -151,9 +151,9 @@ describe('RiskAggregator', () => {
 			expect(result.confidence).toBeGreaterThan(0.9);
 
 			// Verify all contributions are high
-			result.details.contributions.forEach((contrib) => {
+			for (const contrib of result.details.contributions) {
 				expect(contrib.value).toBeGreaterThan(0.8);
-			});
+			}
 		});
 
 		it('should handle low-risk scenario (all metrics benign)', async () => {
@@ -190,9 +190,9 @@ describe('RiskAggregator', () => {
 			expect(result.confidence).toBeGreaterThan(0.8);
 
 			// Verify all contributions are low
-			result.details.contributions.forEach((contrib) => {
+			for (const contrib of result.details.contributions) {
 				expect(contrib.contribution).toBeLessThan(0.1);
-			});
+			}
 		});
 	});
 

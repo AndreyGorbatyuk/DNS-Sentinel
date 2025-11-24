@@ -1,7 +1,12 @@
-import type { RequestContext, MetricResult, DomainProfile, Configuration } from '../../types/index.js';
-import { getDomainProfile, updateDomainProfile } from '../storage/domain-statistics.js';
+import type {
+	Configuration,
+	DomainProfile,
+	MetricResult,
+	RequestContext,
+} from '../../types/index.js';
 import { getConfig } from '../storage/configuration-store.js';
-import { sigmoid, varianceFromM2, computeZScore } from '../utils/normalization.js';
+import { getDomainProfile, updateDomainProfile } from '../storage/domain-statistics.js';
+import { computeZScore, sigmoid, varianceFromM2 } from '../utils/normalization.js';
 
 interface BehaviorStats {
 	count: number;
@@ -85,7 +90,7 @@ export class BehaviorMetricCalculator {
 		const zScore = computeZScore(
 			interArrival,
 			interArrivalStats.mean,
-			varianceFromM2(interArrivalStats)
+			varianceFromM2(interArrivalStats),
 		);
 
 		const rawScore =
@@ -154,7 +159,7 @@ export class BehaviorMetricCalculator {
 		try {
 			const hostA = new URL(a).hostname;
 			const hostB = new URL(b).hostname;
-			return hostA === hostB || hostA.endsWith('.' + hostB) || hostB.endsWith('.' + hostA);
+			return hostA === hostB || hostA.endsWith(`.${hostB}`) || hostB.endsWith(`.${hostA}`);
 		} catch {
 			return false;
 		}
@@ -174,4 +179,3 @@ export class BehaviorMetricCalculator {
 		if (stats.length > 50) stats.shift();
 	}
 }
-

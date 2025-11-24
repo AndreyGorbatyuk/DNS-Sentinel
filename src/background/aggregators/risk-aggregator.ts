@@ -1,4 +1,4 @@
-import type { MetricResult, Configuration } from '../../types/index.js';
+import type { Configuration, MetricResult } from '../../types/index.js';
 import { getConfig } from '../storage/configuration-store.js';
 
 interface Contribution {
@@ -58,10 +58,7 @@ export class RiskAggregator {
 		}
 
 		const riskScore = totalWeight > 0 ? weightedSum / totalWeight : 0.5;
-		const confidence =
-			confidences.length > 0
-				? this.harmonicMean(confidences)
-				: 0.0;
+		const confidence = confidences.length > 0 ? this.harmonicMean(confidences) : 0.0;
 
 		const details: RiskDetails = {
 			riskScore,
@@ -84,4 +81,3 @@ export class RiskAggregator {
 		return values.length / sumOfInverses;
 	}
 }
-

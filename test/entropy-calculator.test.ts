@@ -5,7 +5,7 @@
  * @uses types.ts
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EntropyMetricCalculator } from '../src/background/analysis/entropy-calculator.js';
 import type { Configuration } from '../src/types/index.js';
 
@@ -31,22 +31,22 @@ describe('EntropyMetricCalculator', () => {
 				allowTelemetry: false,
 			},
 			thresholds: {
-				critical: 0.80,
-				high: 0.60,
-				medium: 0.40,
+				critical: 0.8,
+				high: 0.6,
+				medium: 0.4,
 			},
 			weights: {
 				M1: 0.15,
 				M2: 0.25,
-				M3: 0.40,
-				M4: 0.20,
+				M3: 0.4,
+				M4: 0.2,
 			},
 			groups: {
 				rate: { enabled: true, weight: 0.15 },
 				entropy: { enabled: true, weight: 0.25 },
 				reputation: {
 					enabled: true,
-					weight: 0.40,
+					weight: 0.4,
 					cacheTTL: 24,
 					sources: [
 						{ name: 'Google Safe Browsing', enabled: true, weight: 0.4 },
@@ -57,7 +57,7 @@ describe('EntropyMetricCalculator', () => {
 				},
 				behavior: {
 					enabled: true,
-					weight: 0.20,
+					weight: 0.2,
 					minHistoryRequests: 5,
 					minHistoryDays: 1,
 				},
@@ -153,7 +153,7 @@ describe('EntropyMetricCalculator', () => {
 		});
 
 		it('should handle very long domain (near RFC limit)', async () => {
-			const longDomain = 'a'.repeat(240) + '.com';
+			const longDomain = `${'a'.repeat(240)}.com`;
 			const result = await calculator.calculate(longDomain);
 
 			expect(result.id).toBe('M2');

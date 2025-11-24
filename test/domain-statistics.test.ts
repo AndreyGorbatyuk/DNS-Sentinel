@@ -5,7 +5,7 @@
  * @uses types.ts
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DomainProfile, WelfordStats } from '../src/types/index.js';
 
 // Mock chrome.storage.local
@@ -19,7 +19,11 @@ const mockChromeStorage = {
 };
 
 // Assign to globalThis instead of global
-(globalThis as any).chrome = mockChromeStorage;
+type ChromeShim = typeof globalThis & {
+	chrome: typeof mockChromeStorage;
+};
+
+(globalThis as ChromeShim).chrome = mockChromeStorage;
 
 // Mock implementation of domain-statistics module
 const getDomainProfile = vi.fn(async (domain: string): Promise<DomainProfile | null> => {
@@ -197,13 +201,13 @@ describe('DomainStatistics', () => {
 			// Add values: 10, 20, 30
 			const values = [10, 20, 30];
 
-			values.forEach((value) => {
+			for (const value of values) {
 				stats.count += 1;
 				const delta = value - stats.mean;
 				stats.mean += delta / stats.count;
 				const delta2 = value - stats.mean;
 				stats.M2 += delta * delta2;
-			});
+			}
 
 			expect(stats.count).toBe(3);
 			expect(stats.mean).toBeCloseTo(20, 2); // (10+20+30)/3 = 20
@@ -318,9 +322,9 @@ describe('DomainStatistics', () => {
 			}));
 
 			const storageData: Record<string, DomainProfile> = {};
-			profiles.forEach((p) => {
-				storageData[`profile_${p.domain}`] = p;
-			});
+			for (const profile of profiles) {
+				storageData[`profile_${profile.domain}`] = profile;
+			}
 
 			vi.mocked(mockChromeStorage.local.get).mockResolvedValue(storageData);
 			vi.mocked(mockChromeStorage.local.remove).mockResolvedValue(undefined);
@@ -336,7 +340,7 @@ describe('DomainStatistics', () => {
 
 	describe('Profile migration', () => {
 		it('should migrate v1 profile to v2', () => {
-			const v1Profile: any = {
+			const v1Profile = {
 				domain: 'legacy.com',
 				firstSeen: Date.now() - 86400000,
 				lastSeen: Date.now() - 3600000,

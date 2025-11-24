@@ -1,6 +1,6 @@
-import type { MetricResult, DomainProfile, Configuration } from '../../types/index.js';
-import { getDomainProfile } from '../storage/domain-statistics.js';
+import type { Configuration, DomainProfile, MetricResult } from '../../types/index.js';
 import { getConfig } from '../storage/configuration-store.js';
+import { getDomainProfile } from '../storage/domain-statistics.js';
 
 interface ReputationSource {
 	name: string;
@@ -103,12 +103,15 @@ export class ReputationMetricCalculator {
 		return Math.floor((Date.now() - firstSeen) / (24 * 60 * 60 * 1000));
 	}
 
-	private async getCachedReputation(domain: string, source: string): Promise<ReputationSource | null> {
+	private async getCachedReputation(
+		domain: string,
+		source: string,
+	): Promise<ReputationSource | null> {
 		try {
 			const key = `rep_${domain}_${source}`;
 			const data = await chrome.storage.local.get(key);
 			const cached = data[key];
-			if (cached && cached.cachedAt && Date.now() - cached.cachedAt < this.CACHE_TTL) {
+			if (cached?.cachedAt && Date.now() - cached.cachedAt < this.CACHE_TTL) {
 				return cached;
 			}
 		} catch {
@@ -119,9 +122,12 @@ export class ReputationMetricCalculator {
 
 	private async queryReputationAPI(domain: string, source: string): Promise<number> {
 		try {
-			const response = await fetch(`https://api.reputation.example/${source}/check?domain=${domain}`, {
-				signal: AbortSignal.timeout(3000),
-			});
+			const response = await fetch(
+				`https://api.reputation.example/${source}/check?domain=${domain}`,
+				{
+					signal: AbortSignal.timeout(3000),
+				},
+			);
 			const result = await response.json();
 			const score = result.malicious ? 1.0 : 0.0;
 
@@ -150,4 +156,3 @@ export class ReputationMetricCalculator {
 		}
 	}
 }
-

@@ -1,9 +1,37 @@
 const PUBLIC_SUFFIXES = new Set<string>([
-	'com', 'org', 'net', 'edu', 'gov', 'co', 'io', 'ai', 'app',
-	'ru', 'de', 'uk', 'fr', 'it', 'es', 'jp', 'cn', 'br', 'au',
-	'co.uk', 'com.br', 'com.au', 'co.jp', 'ne.jp', 'or.jp',
-	'ac.uk', 'gov.uk', 'github.io', 'cloudfront.net', 'vercel.app',
-	'pages.dev', 'web.app', 'firebaseapp.com',
+	'com',
+	'org',
+	'net',
+	'edu',
+	'gov',
+	'co',
+	'io',
+	'ai',
+	'app',
+	'ru',
+	'de',
+	'uk',
+	'fr',
+	'it',
+	'es',
+	'jp',
+	'cn',
+	'br',
+	'au',
+	'co.uk',
+	'com.br',
+	'com.au',
+	'co.jp',
+	'ne.jp',
+	'or.jp',
+	'ac.uk',
+	'gov.uk',
+	'github.io',
+	'cloudfront.net',
+	'vercel.app',
+	'pages.dev',
+	'web.app',
+	'firebaseapp.com',
 ]);
 
 export function extractRegistrableDomain(hostname: string): string {
@@ -12,7 +40,7 @@ export function extractRegistrableDomain(hostname: string): string {
 	const lower = hostname.toLowerCase();
 	const parts = lower.split('.');
 
-	if (parts.length === 4 && parts.every(p => /^\d+$/.test(p) && +p <= 255)) {
+	if (parts.length === 4 && parts.every((p) => /^\d+$/.test(p) && +p <= 255)) {
 		return lower;
 	}
 	if (lower === 'localhost' || lower.endsWith('.localhost')) {
@@ -38,6 +66,5 @@ export function isSubdomain(candidate: string, parent: string): boolean {
 	if (!candidate || !parent) return false;
 	const c = candidate.toLowerCase();
 	const p = parent.toLowerCase();
-	return c === p || c.endsWith('.' + p);
+	return c === p || c.endsWith(`.${p}`);
 }
-

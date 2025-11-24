@@ -6,38 +6,46 @@
  * @uses types.ts
  */
 
-import { describe, bench, beforeEach } from 'vitest';
+import { beforeEach, bench, describe } from 'vitest';
 import { RateMetricCalculator } from '../src/background/analysis/rate-calculator.ts';
-import type { RequestContext, DomainProfile } from '../src/types/index.ts';
+import type { DomainProfile, RequestContext } from '../src/types/index.ts';
 
 // Mock chrome.storage.local
+type StorageRecord = Record<string, unknown>;
+
 const mockChromeStorage = {
 	local: {
-		get: async (key: string) => {
+		get: async (key: string): Promise<StorageRecord> => {
 			// Fast mock without actual storage
 			return {};
 		},
-		set: async (items: Record<string, any>) => {
+		set: async (items: StorageRecord): Promise<void> => {
 			// No-op for benchmarks
 		},
 	},
 };
 
-(globalThis as any).chrome = mockChromeStorage;
+type ChromeShim = typeof globalThis & {
+	chrome: {
+		storage: typeof mockChromeStorage;
+	};
+};
+
+(globalThis as ChromeShim).chrome = { storage: mockChromeStorage };
 
 // Mock configuration-store
 const mockGetConfig = async () => ({
 	enabled: true,
 	sensitivity: 'balanced' as const,
 	privacy: { collectStatistics: false, allowTelemetry: false },
-	thresholds: { critical: 0.80, high: 0.60, medium: 0.40 },
-	weights: { M1: 0.15, M2: 0.25, M3: 0.40, M4: 0.20 },
+	thresholds: { critical: 0.8, high: 0.6, medium: 0.4 },
+	weights: { M1: 0.15, M2: 0.25, M3: 0.4, M4: 0.2 },
 	groups: {
 		rate: { enabled: true, weight: 0.15 },
 		entropy: { enabled: true, weight: 0.25 },
 		reputation: {
 			enabled: true,
-			weight: 0.40,
+			weight: 0.4,
 			cacheTTL: 24,
 			sources: [
 				{ name: 'Google Safe Browsing', enabled: true, weight: 0.4 },
@@ -46,7 +54,7 @@ const mockGetConfig = async () => ({
 				{ name: 'CERT Validity', enabled: true, weight: 0.1 },
 			],
 		},
-		behavior: { enabled: true, weight: 0.20, minHistoryRequests: 5, minHistoryDays: 1 },
+		behavior: { enabled: true, weight: 0.2, minHistoryRequests: 5, minHistoryDays: 1 },
 	},
 	storage: { enabled: true, maxProfiles: 10000 },
 });
@@ -206,7 +214,7 @@ describe('RateMetricCalculator Benchmarks', () => {
 			const mean = 5.5;
 			const variance = 8.25;
 			const results = values.map((value) =>
-				variance > 0 ? (value - mean) / Math.sqrt(variance) : 0
+				variance > 0 ? (value - mean) / Math.sqrt(variance) : 0,
 			);
 			return results;
 		});

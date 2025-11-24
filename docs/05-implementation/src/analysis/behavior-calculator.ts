@@ -8,11 +8,11 @@
  * @uses api/configuration.api.md
  */
 
-import type { RequestContext, MetricResult, DomainProfile, Configuration } from '../../../types.ts'
+import type { Configuration, DomainProfile, MetricResult, RequestContext } from '../../../types.ts';
 
-import { getDomainProfile, updateDomainProfile } from '../storage/domain-statistics.ts';
 import { getConfig } from '../storage/configuration-store.ts';
-import { sigmoid, varianceFromM2, computeZScore } from '../utils/normalization.ts';
+import { getDomainProfile, updateDomainProfile } from '../storage/domain-statistics.ts';
+import { computeZScore, sigmoid, varianceFromM2 } from '../utils/normalization.ts';
 
 interface BehaviorStats {
 	count: number;
@@ -90,7 +90,7 @@ export class BehaviorMetricCalculator {
 		const zScore = computeZScore(
 			interArrival,
 			profile.stats.interArrival.mean,
-			varianceFromM2(profile.stats.interArrival)
+			varianceFromM2(profile.stats.interArrival),
 		);
 
 		// Weighted sum of anomalies
@@ -163,7 +163,7 @@ export class BehaviorMetricCalculator {
 		try {
 			const hostA = new URL(a).hostname;
 			const hostB = new URL(b).hostname;
-			return hostA === hostB || hostA.endsWith('.' + hostB) || hostB.endsWith('.' + hostA);
+			return hostA === hostB || hostA.endsWith(`.${hostB}`) || hostB.endsWith(`.${hostA}`);
 		} catch {
 			return false;
 		}

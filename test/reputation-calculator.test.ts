@@ -5,7 +5,7 @@
  * @uses types.ts
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ReputationMetricCalculator } from '../src/background/analysis/reputation-calculator.js';
 import type { Configuration, DomainProfile } from '../src/types/index.js';
 
@@ -26,12 +26,23 @@ const mockChromeStorage = {
 };
 
 // Assign to globalThis instead of global
-(globalThis as any).chrome = mockChromeStorage;
+type ReputationTestGlobals = typeof globalThis & {
+	chrome: typeof mockChromeStorage;
+	fetch: typeof fetch;
+};
+
+const globalMocks = globalThis as ReputationTestGlobals;
+globalMocks.chrome = mockChromeStorage;
 
 // Mock fetch for API calls
-(globalThis as any).fetch = vi.fn();
+globalMocks.fetch = vi.fn();
 
-import { getConfig } from ../src/background/storage/configuration-store.js';
+type StorageKey = string | string[] | Record<string, unknown> | null;
+type ReputationDetailsShape = {
+	sources: Array<{ name: string } & Record<string, unknown>>;
+};
+
+import { getConfig } from '../src/background/storage/configuration-store.js';
 import { getDomainProfile } from '../src/background/storage/domain-statistics.js';
 
 describe('ReputationMetricCalculator', () => {
@@ -52,22 +63,22 @@ describe('ReputationMetricCalculator', () => {
 				allowTelemetry: false,
 			},
 			thresholds: {
-				critical: 0.80,
-				high: 0.60,
-				medium: 0.40,
+				critical: 0.8,
+				high: 0.6,
+				medium: 0.4,
 			},
 			weights: {
 				M1: 0.15,
 				M2: 0.25,
-				M3: 0.40,
-				M4: 0.20,
+				M3: 0.4,
+				M4: 0.2,
 			},
 			groups: {
 				rate: { enabled: true, weight: 0.15 },
 				entropy: { enabled: true, weight: 0.25 },
 				reputation: {
 					enabled: true,
-					weight: 0.40,
+					weight: 0.4,
 					cacheTTL: 24,
 					sources: [
 						{ name: 'Google Safe Browsing', enabled: true, weight: 0.4 },
@@ -78,7 +89,7 @@ describe('ReputationMetricCalculator', () => {
 				},
 				behavior: {
 					enabled: true,
-					weight: 0.20,
+					weight: 0.2,
 					minHistoryRequests: 5,
 					minHistoryDays: 1,
 				},
@@ -103,7 +114,7 @@ describe('ReputationMetricCalculator', () => {
 			const cachedTimestamp = now - 3600000; // 1 hour ago (within 24h TTL)
 
 			// Mock cache hit
-			vi.mocked(mockChromeStorage.local.get).mockImplementation((key: any) => {
+			vi.mocked(mockChromeStorage.local.get).mockImplementation((key: StorageKey) => {
 				if (typeof key === 'string' && key.startsWith('rep_')) {
 					return Promise.resolve({
 						[key]: {
@@ -160,7 +171,7 @@ describe('ReputationMetricCalculator', () => {
 			const expiredTimestamp = now - 86400000 - 3600000; // 25 hours ago (beyond 24h TTL)
 
 			// Mock expired cache
-			vi.mocked(mockChromeStorage.local.get).mockImplementation((key: any) => {
+			vi.mocked(mockChromeStorage.local.get).mockImplementation((key: StorageKey) => {
 				if (typeof key === 'string' && key.startsWith('rep_')) {
 					return Promise.resolve({
 						[key]: {
@@ -299,9 +310,8 @@ describe('ReputationMetricCalculator', () => {
 			expect(result.details.domainAgeDays).toBe(5);
 
 			// Find domain age source in details
-			const ageSource = result.details.sources.find(
-				(s: any) => s.name === 'Domain Age'
-			);
+			const details = result.details as ReputationDetailsShape;
+			const ageSource = details.sources.find((source) => source.name === 'Domain Age');
 			expect(ageSource).toBeDefined();
 			expect(ageSource.score).toBeGreaterThan(0.5); // Penalty score
 		});
@@ -344,9 +354,8 @@ describe('ReputationMetricCalculator', () => {
 			expect(result.details.domainAgeDays).toBe(90);
 
 			// Find domain age source
-			const ageSource = result.details.sources.find(
-				(s: any) => s.name === 'Domain Age'
-			);
+			const details = result.details as ReputationDetailsShape;
+			const ageSource = details.sources.find((source) => source.name === 'Domain Age');
 			expect(ageSource).toBeDefined();
 			expect(ageSource.score).toBe(0.0); // No penalty
 		});

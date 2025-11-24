@@ -24,13 +24,27 @@ export function isSensitivePath(url: string): boolean {
 
 	const path = parsed.pathname.toLowerCase();
 	const sensitivePatterns = [
-		'login', 'signin', 'sign-in', 'auth', 'oauth',
-		'password', 'reset', 'account', 'profile',
-		'bank', 'payment', 'checkout', 'billing', 'card',
-		'secure', 'admin', 'cpanel', 'dashboard'
+		'login',
+		'signin',
+		'sign-in',
+		'auth',
+		'oauth',
+		'password',
+		'reset',
+		'account',
+		'profile',
+		'bank',
+		'payment',
+		'checkout',
+		'billing',
+		'card',
+		'secure',
+		'admin',
+		'cpanel',
+		'dashboard',
 	];
 
-	return sensitivePatterns.some(p => path.includes(p));
+	return sensitivePatterns.some((p) => path.includes(p));
 }
 
 export function extractHostname(url: string): string {
@@ -58,4 +72,3 @@ export function isPrivateUrl(url: string): boolean {
 		hostname.endsWith('.internal')
 	);
 }
-

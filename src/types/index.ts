@@ -70,7 +70,7 @@ export interface MetricResult {
 	id: string;
 	value: number;
 	confidence: number;
-	details?: any;
+	details?: Record<string, unknown>;
 }
 
 export interface WelfordStats {
@@ -112,4 +112,3 @@ export interface DomainProfile {
 	_version?: number;
 	_updatedAt?: number;
 }
-

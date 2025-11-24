@@ -1,8 +1,8 @@
 // background-demo.js - демонстрация пайплайна анализа доменов
 
 import { getConfig } from './configuration-store.js';
-import { RiskAggregator } from './risk-aggregator.js';
 import { RateMetricCalculator } from './rate-calculator.js';
+import { RiskAggregator } from './risk-aggregator.js';
 
 // Хардкоженные тестовые домены
 const TEST_DOMAINS = [
@@ -20,14 +20,14 @@ const TEST_DOMAINS = [
 	'g00gle-drive.net',
 	'faceb00k-security.com',
 	'github-enterprise.net',
-	'reddit-login.com'
+	'reddit-login.com',
 ];
 
 let logEl;
 let config;
 
 function log(msg) {
-	logEl.textContent += msg + '\n';
+	logEl.textContent += `${msg}\n`;
 	console.log(msg);
 }
 
@@ -40,8 +40,12 @@ async function runPipelineTest() {
 	// Загрузка конфигурации
 	config = await getConfig();
 	log(`Config loaded: sensitivity=${config.sensitivity}`);
-	log(`Thresholds: critical=${config.thresholds.critical}, high=${config.thresholds.high}, medium=${config.thresholds.medium}`);
-	log(`Rate calculator: enabled=${config.groups.rate.enabled}, weight=${config.groups.rate.weight}\n`);
+	log(
+		`Thresholds: critical=${config.thresholds.critical}, high=${config.thresholds.high}, medium=${config.thresholds.medium}`,
+	);
+	log(
+		`Rate calculator: enabled=${config.groups.rate.enabled}, weight=${config.groups.rate.weight}\n`,
+	);
 
 	const aggregator = new RiskAggregator();
 	const rateCalc = new RateMetricCalculator();
@@ -55,9 +59,9 @@ async function runPipelineTest() {
 		// Контекст запроса
 		const context = {
 			url: `https://${domain}/`,
-			timestamp: Date.now() + (i * 100),
+			timestamp: Date.now() + i * 100,
 			userAgent: 'Mozilla/5.0 (Demo)',
-			resourceType: 'main_frame'
+			resourceType: 'main_frame',
 		};
 
 		// M1: Rate calculation
@@ -82,7 +86,7 @@ async function runPipelineTest() {
 	log('\n=== Pipeline test completed ===');
 	log(`Total domains processed: ${TEST_DOMAINS.length}`);
 	log(`Rate metric weight: ${config.groups.rate.weight}`);
-	log(`Other metrics (M2-M4): disabled for demo`);
+	log('Other metrics (M2-M4): disabled for demo');
 }
 
 function getRiskLevel(score) {
@@ -93,12 +97,12 @@ function getRiskLevel(score) {
 }
 
 function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
+	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // Инициализация
 document.getElementById('run').addEventListener('click', () => {
-	runPipelineTest().catch(err => {
+	runPipelineTest().catch((err) => {
 		log(`\nERROR: ${err.message}`);
 		console.error(err);
 	});

@@ -22,9 +22,7 @@ async function getTopRiskyDomains(): Promise<DomainRisk[]> {
 		}
 	}
 
-	return profiles
-		.sort((a, b) => b.riskScore - a.riskScore)
-		.slice(0, 5);
+	return profiles.sort((a, b) => b.riskScore - a.riskScore).slice(0, 5);
 }
 
 function renderDomains(domains: DomainRisk[]): void {
@@ -36,15 +34,22 @@ function renderDomains(domains: DomainRisk[]): void {
 		return;
 	}
 
-	list.innerHTML = domains.map(domain => {
-		const riskClass = domain.riskScore >= 0.8 ? 'risk-high' : domain.riskScore >= 0.5 ? 'risk-medium' : 'risk-low';
-		return `
+	list.innerHTML = domains
+		.map((domain) => {
+			const riskClass =
+				domain.riskScore >= 0.8
+					? 'risk-high'
+					: domain.riskScore >= 0.5
+						? 'risk-medium'
+						: 'risk-low';
+			return `
 			<li class="domain-item">
 				<span class="domain-name">${domain.domain}</span>
 				<span class="risk-score ${riskClass}">${(domain.riskScore * 100).toFixed(0)}%</span>
 			</li>
 		`;
-	}).join('');
+		})
+		.join('');
 }
 
 async function init(): Promise<void> {
@@ -53,4 +58,3 @@ async function init(): Promise<void> {
 }
 
 init();
-

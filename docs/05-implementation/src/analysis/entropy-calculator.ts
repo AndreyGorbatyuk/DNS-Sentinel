@@ -6,7 +6,7 @@
  * @uses api/configuration.api.md
  */
 
-import type { MetricResult, Configuration } from '../../../types.ts';
+import type { Configuration, MetricResult } from '../../../types.ts';
 
 import { getConfig } from '../storage/configuration-store.ts';
 

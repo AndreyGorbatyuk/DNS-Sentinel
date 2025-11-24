@@ -1,4 +1,4 @@
-import type { MetricResult, Configuration } from '../../types/index.js';
+import type { Configuration, MetricResult } from '../../types/index.js';
 import { getConfig } from '../storage/configuration-store.js';
 
 interface EntropyDetails {
@@ -96,4 +96,3 @@ export class EntropyMetricCalculator {
 		return 1 / (1 + Math.exp(-5 * (ratio - 0.7)));
 	}
 }
-

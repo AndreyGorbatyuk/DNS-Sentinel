@@ -1,32 +1,24 @@
 {
-  "manifest_version": 3,
-  "name": "DNS Sentinel",
-  "version": "1.0.0",
-  "description": "Ultra-fast client-side anti-phishing Chrome extension",
-  "permissions": [
-    "webRequest",
-    "webRequestBlocking",
-    "storage",
-    "tabs",
-    "alarms",
-    "<all_urls>"
-  ],
-  "background": {
-    "service_worker": "background/index.ts",
-    "type": "module"
-  },
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
-  },
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  }
+	"manifest_version": 3,
+	"name": "DNS Sentinel",
+	"version": "1.0.0",
+	"description": "Ultra-fast client-side anti-phishing Chrome extension",
+	"permissions": ["webRequest", "webRequestBlocking", "storage", "tabs", "alarms", "<all_urls>"],
+	"background": {
+		"service_worker": "background/index.ts",
+		"type": "module"
+	},
+	"action": {
+		"default_popup": "popup.html",
+		"default_icon": {
+			"16": "icons/icon16.png",
+			"48": "icons/icon48.png",
+			"128": "icons/icon128.png"
+		}
+	},
+	"icons": {
+		"16": "icons/icon16.png",
+		"48": "icons/icon48.png",
+		"128": "icons/icon128.png"
+	}
 }
-

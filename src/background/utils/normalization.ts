@@ -18,4 +18,3 @@ export function harmonicMean(values: number[]): number {
 	const sumOfInverses = values.reduce((sum, c) => sum + 1 / Math.max(c, 0.01), 0);
 	return values.length / sumOfInverses;
 }
-

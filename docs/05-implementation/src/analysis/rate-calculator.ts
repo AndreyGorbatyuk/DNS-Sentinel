@@ -8,12 +8,11 @@
  * @uses api/configuration.api.md
  */
 
-import type { RequestContext, MetricResult, DomainProfile, Configuration } from '../../../types.ts'
+import type { Configuration, DomainProfile, MetricResult, RequestContext } from '../../../types.ts';
 
-import { sigmoid, varianceFromM2, computeZScore } from '../utils/normalization.ts';
-
-import { getDomainProfile, updateDomainProfile } from '../storage/domain-statistics.ts';
 import { getConfig } from '../storage/configuration-store.ts';
+import { getDomainProfile, updateDomainProfile } from '../storage/domain-statistics.ts';
+import { computeZScore, sigmoid, varianceFromM2 } from '../utils/normalization.ts';
 
 interface RateStats {
 	count: number;
@@ -63,7 +62,11 @@ export class RateMetricCalculator {
 		const counts = {
 			oneMinute: this.countInWindow(profile.timeSeries.minutely, now, this.WINDOWS.oneMinute),
 			fiveMinute: this.countInWindow(profile.timeSeries.fiveMinute, now, this.WINDOWS.fiveMinute),
-			fifteenMinute: this.countInWindow(profile.timeSeries.fifteenMinute, now, this.WINDOWS.fifteenMinute),
+			fifteenMinute: this.countInWindow(
+				profile.timeSeries.fifteenMinute,
+				now,
+				this.WINDOWS.fifteenMinute,
+			),
 		};
 
 		// Compute per-minute rates
@@ -142,7 +145,7 @@ export class RateMetricCalculator {
 
 	private countInWindow(series: number[], now: number, windowSec: number): number {
 		const cutoff = now - windowSec * 1000;
-		return series.filter(ts => ts >= cutoff).length;
+		return series.filter((ts) => ts >= cutoff).length;
 	}
 
 	private appendToTimeSeries(series: number[], timestamp: number): void {

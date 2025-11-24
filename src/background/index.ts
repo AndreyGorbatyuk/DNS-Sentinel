@@ -1,11 +1,11 @@
 import type { RequestContext } from '../types/index.js';
-import { normalizeDomain } from './utils/domains.js';
-import { RateMetricCalculator } from './analysis/rate-calculator.js';
-import { EntropyMetricCalculator } from './analysis/entropy-calculator.js';
-import { ReputationMetricCalculator } from './analysis/reputation-calculator.js';
-import { BehaviorMetricCalculator } from './analysis/behavior-calculator.js';
 import { RiskAggregator } from './aggregators/risk-aggregator.js';
+import { BehaviorMetricCalculator } from './analysis/behavior-calculator.js';
+import { EntropyMetricCalculator } from './analysis/entropy-calculator.js';
+import { RateMetricCalculator } from './analysis/rate-calculator.js';
+import { ReputationMetricCalculator } from './analysis/reputation-calculator.js';
 import { getConfig } from './storage/configuration-store.js';
+import { normalizeDomain } from './utils/domains.js';
 
 const rateCalc = new RateMetricCalculator();
 const entropyCalc = new EntropyMetricCalculator();
@@ -40,13 +40,14 @@ chrome.webRequest.onBeforeRequest.addListener(
 			const { riskScore, confidence } = await riskAgg.aggregate([m1, m2, m3, m4]);
 
 			if (riskScore >= config.thresholds.critical && confidence > 0.7) {
-				console.warn(`[DNS Sentinel] Critical risk detected: ${domain} (score: ${riskScore.toFixed(3)})`);
+				console.warn(
+					`[DNS Sentinel] Critical risk detected: ${domain} (score: ${riskScore.toFixed(3)})`,
+				);
 			}
 		} catch (error) {
 			console.error(`[DNS Sentinel] Error processing ${domain}:`, error);
 		}
 	},
 	{ urls: ['<all_urls>'] },
-	['requestBody']
+	['requestBody'],
 );
-

@@ -2,10 +2,7 @@
 {
 	"compilerOptions": {
 		"target": "ES2022",
-		"lib": [
-			"ES2022",
-			"WebWorker"
-		],
+		"lib": ["ES2022", "WebWorker"],
 		"module": "ESNext",
 		"moduleResolution": "node",
 		// KEY OPTIONS FOR THE DOCUMENTATION STAGE
@@ -27,18 +24,13 @@
 		// Completely disable searching node_modules and @types.
 		"baseUrl": ".",
 		"paths": {
-			"*": [
-				"*",
-				"src/*",
-				"node_modules/*"
-			]
+			"*": ["*", "src/*", "node_modules/*"]
 		}
 	},
 	"include": [
 		"05-implementation/src/**/*.ts",
-		"05-implementation/tests/**/*.ts"
-, "vitest-stubs.d.ts"	],
-	"exclude": [
-		"node_modules"
-	]
+		"05-implementation/tests/**/*.ts",
+		"vitest-stubs.d.ts"
+	],
+	"exclude": ["node_modules"]
 }

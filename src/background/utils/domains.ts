@@ -6,9 +6,10 @@ export function normalizeDomain(input: string): string {
 	}
 
 	try {
-		const url = input.startsWith('http://') || input.startsWith('https://')
-			? new URL(input)
-			: new URL('https://' + input);
+		const url =
+			input.startsWith('http://') || input.startsWith('https://')
+				? new URL(input)
+				: new URL(`https://${input}`);
 
 		const hostname = url.hostname;
 
@@ -48,8 +49,4 @@ export function isPrivateHostname(hostname: string): boolean {
 	);
 }
 
-export {
-	extractRegistrableDomain as extractSLD,
-	isSubdomain,
-};
-
+export { extractRegistrableDomain as extractSLD, isSubdomain };

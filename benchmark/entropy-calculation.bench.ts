@@ -6,32 +6,39 @@
  * @uses types.ts
  */
 
-import { describe, bench, beforeEach } from 'vitest';
+import { beforeEach, bench, describe } from 'vitest';
 import { EntropyMetricCalculator } from '../src/background/analysis/entropy-calculator.ts';
+import type { MetricResult } from '../src/types/index.ts';
 
 // Mock chrome.storage.local (minimal for entropy calculator)
+type StorageRecord = Record<string, unknown>;
+
 const mockChromeStorage = {
 	local: {
 		get: async (key: string) => ({}),
-		set: async (items: Record<string, any>) => { },
+		set: async (items: StorageRecord) => {},
 	},
 };
 
-(globalThis as any).chrome = mockChromeStorage;
+type EntropyBenchGlobals = typeof globalThis & {
+	chrome: typeof mockChromeStorage;
+};
+
+(globalThis as EntropyBenchGlobals).chrome = mockChromeStorage;
 
 // Mock configuration-store
 const mockGetConfig = async () => ({
 	enabled: true,
 	sensitivity: 'balanced' as const,
 	privacy: { collectStatistics: false, allowTelemetry: false },
-	thresholds: { critical: 0.80, high: 0.60, medium: 0.40 },
-	weights: { M1: 0.15, M2: 0.25, M3: 0.40, M4: 0.20 },
+	thresholds: { critical: 0.8, high: 0.6, medium: 0.4 },
+	weights: { M1: 0.15, M2: 0.25, M3: 0.4, M4: 0.2 },
 	groups: {
 		rate: { enabled: true, weight: 0.15 },
 		entropy: { enabled: true, weight: 0.25 },
 		reputation: {
 			enabled: true,
-			weight: 0.40,
+			weight: 0.4,
 			cacheTTL: 24,
 			sources: [
 				{ name: 'Google Safe Browsing', enabled: true, weight: 0.4 },
@@ -40,14 +47,15 @@ const mockGetConfig = async () => ({
 				{ name: 'CERT Validity', enabled: true, weight: 0.1 },
 			],
 		},
-		behavior: { enabled: true, weight: 0.20, minHistoryRequests: 5, minHistoryDays: 1 },
+		behavior: { enabled: true, weight: 0.2, minHistoryRequests: 5, minHistoryDays: 1 },
 	},
 	storage: { enabled: true, maxProfiles: 10000 },
 });
 
 // Helper: Generate random domain names
 function generateRandomDomain(length: number, entropy: 'low' | 'medium' | 'high'): string {
-	const lowEntropyChars = 'aaaaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz';
+	const lowEntropyChars =
+		'aaaaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz';
 	const mediumEntropyChars = 'abcdefghijklmnopqrstuvwxyz';
 	const highEntropyChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -68,7 +76,7 @@ function generateRandomDomain(length: number, entropy: 'low' | 'medium' | 'high'
 	for (let i = 0; i < length; i++) {
 		domain += chars[Math.floor(Math.random() * chars.length)];
 	}
-	return domain + '.com';
+	return `${domain}.com`;
 }
 
 describe('EntropyMetricCalculator Benchmarks', () => {
@@ -142,7 +150,7 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 					.split('.')
 					.slice(-2)
 					.join('.')
-					.replace(/[^a-z]/g, '')
+					.replace(/[^a-z]/g, ''),
 			);
 		});
 	});
@@ -379,7 +387,7 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 		});
 
 		bench('M2: very long domain (240 chars)', async () => {
-			const longDomain = 'a'.repeat(240) + '.com';
+			const longDomain = `${'a'.repeat(240)}.com`;
 			const result = await calculator.calculate(longDomain);
 			return result;
 		});
@@ -397,32 +405,32 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 
 	describe('Performance Regression: Domain Length', () => {
 		bench('M2: length=5', async () => {
-			const domain = 'a'.repeat(5) + '.com';
+			const domain = `${'a'.repeat(5)}.com`;
 			await calculator.calculate(domain);
 		});
 
 		bench('M2: length=10', async () => {
-			const domain = 'a'.repeat(10) + '.com';
+			const domain = `${'a'.repeat(10)}.com`;
 			await calculator.calculate(domain);
 		});
 
 		bench('M2: length=20', async () => {
-			const domain = 'a'.repeat(20) + '.com';
+			const domain = `${'a'.repeat(20)}.com`;
 			await calculator.calculate(domain);
 		});
 
 		bench('M2: length=50', async () => {
-			const domain = 'a'.repeat(50) + '.com';
+			const domain = `${'a'.repeat(50)}.com`;
 			await calculator.calculate(domain);
 		});
 
 		bench('M2: length=100', async () => {
-			const domain = 'a'.repeat(100) + '.com';
+			const domain = `${'a'.repeat(100)}.com`;
 			await calculator.calculate(domain);
 		});
 
 		bench('M2: length=200', async () => {
-			const domain = 'a'.repeat(200) + '.com';
+			const domain = `${'a'.repeat(200)}.com`;
 			await calculator.calculate(domain);
 		});
 	});
@@ -500,7 +508,7 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 				'youtube.com',
 				'wikipedia.org',
 			];
-			const results: any[] = [];  // ✅ Добавьте тип
+			const results: MetricResult[] = [];
 			for (const domain of domains) {
 				results.push(await calculator.calculate(domain));
 			}
@@ -509,7 +517,7 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 
 		bench('M2: batch 10 DGA domains', async () => {
 			const domains = Array.from({ length: 10 }, () => generateRandomDomain(15, 'high'));
-			const results: any[] = [];  // ✅ Добавьте тип
+			const results: MetricResult[] = [];
 			for (const domain of domains) {
 				results.push(await calculator.calculate(domain));
 			}
@@ -529,7 +537,7 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 				'linkedin.com',
 				'abcdefghij.io',
 			];
-			const results: any[] = [];  // ✅ Добавьте тип
+			const results: MetricResult[] = [];
 			for (const domain of domains) {
 				results.push(await calculator.calculate(domain));
 			}

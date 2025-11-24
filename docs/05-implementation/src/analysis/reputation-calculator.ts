@@ -9,11 +9,10 @@
 
 /// <reference path="../../../chrome-stubs.ts" />
 
+import type { Configuration, DomainProfile, MetricResult } from '../../../types.ts';
 
-import type { MetricResult, DomainProfile, Configuration } from '../../../types.ts'
-
-import { getDomainProfile } from '../storage/domain-statistics.ts';
 import { getConfig } from '../storage/configuration-store.ts';
+import { getDomainProfile } from '../storage/domain-statistics.ts';
 
 interface ReputationSource {
 	name: string;
@@ -125,12 +124,15 @@ export class ReputationMetricCalculator {
 		return Math.floor((Date.now() - firstSeen) / (24 * 60 * 60 * 1000));
 	}
 
-	private async getCachedReputation(domain: string, source: string): Promise<ReputationSource | null> {
+	private async getCachedReputation(
+		domain: string,
+		source: string,
+	): Promise<ReputationSource | null> {
 		try {
 			const key = `rep_${domain}_${source}`;
 			const data = await chrome.storage.local.get(key);
 			const cached = data[key];
-			if (cached && cached.cachedAt && Date.now() - cached.cachedAt < this.CACHE_TTL) {
+			if (cached?.cachedAt && Date.now() - cached.cachedAt < this.CACHE_TTL) {
 				return cached;
 			}
 		} catch {
@@ -143,9 +145,12 @@ export class ReputationMetricCalculator {
 		// Simulate API call with fallback
 		try {
 			// In real implementation: fetch from background via message passing
-			const response = await fetch(`https://api.reputation.example/${source}/check?domain=${domain}`, {
-				signal: AbortSignal.timeout(3000),
-			});
+			const response = await fetch(
+				`https://api.reputation.example/${source}/check?domain=${domain}`,
+				{
+					signal: AbortSignal.timeout(3000),
+				},
+			);
 			const result = await response.json();
 			const score = result.malicious ? 1.0 : 0.0;
 

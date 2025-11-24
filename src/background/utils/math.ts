@@ -35,4 +35,3 @@ export function weightedAverage(values: number[], weights: number[]): number {
 export function lerp(a: number, b: number, t: number): number {
 	return a + (b - a) * clamp(t, 0, 1);
 }
-

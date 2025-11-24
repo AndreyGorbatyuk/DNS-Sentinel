@@ -5,9 +5,9 @@
  * @uses types.ts
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BehaviorMetricCalculator } from '../src/background/analysis/behavior-calculator.js';
-import type { Configuration, RequestContext, DomainProfile } from '../src/types/index.js';
+import type { Configuration, DomainProfile, RequestContext } from '../src/types/index.js';
 
 vi.mock('../src/background/storage/configuration-store.js', () => ({
 	getConfig: vi.fn(),
@@ -27,7 +27,10 @@ vi.mock('../src/background/utils/normalization.js', () => ({
 }));
 
 import { getConfig } from '../src/background/storage/configuration-store.js';
-import { getDomainProfile, updateDomainProfile } from '../src/background/storage/domain-statistics.js';
+import {
+	getDomainProfile,
+	updateDomainProfile,
+} from '../src/background/storage/domain-statistics.js';
 
 describe('BehaviorMetricCalculator', () => {
 	let calculator: BehaviorMetricCalculator;
@@ -45,22 +48,22 @@ describe('BehaviorMetricCalculator', () => {
 				allowTelemetry: false,
 			},
 			thresholds: {
-				critical: 0.80,
-				high: 0.60,
-				medium: 0.40,
+				critical: 0.8,
+				high: 0.6,
+				medium: 0.4,
 			},
 			weights: {
 				M1: 0.15,
 				M2: 0.25,
-				M3: 0.40,
-				M4: 0.20,
+				M3: 0.4,
+				M4: 0.2,
 			},
 			groups: {
 				rate: { enabled: true, weight: 0.15 },
 				entropy: { enabled: true, weight: 0.25 },
 				reputation: {
 					enabled: true,
-					weight: 0.40,
+					weight: 0.4,
 					cacheTTL: 24,
 					sources: [
 						{ name: 'Google Safe Browsing', enabled: true, weight: 0.4 },
@@ -71,7 +74,7 @@ describe('BehaviorMetricCalculator', () => {
 				},
 				behavior: {
 					enabled: true,
-					weight: 0.20,
+					weight: 0.2,
 					minHistoryRequests: 5,
 					minHistoryDays: 1,
 				},
@@ -221,7 +224,9 @@ describe('BehaviorMetricCalculator', () => {
 					},
 					interArrival: { count: 60, mean: 7200, M2: 1000000 },
 				},
-				accessHours: Array(24).fill(2).map((v, i) => (i >= 9 && i <= 22 ? 5 : v)),
+				accessHours: Array(24)
+					.fill(2)
+					.map((v, i) => (i >= 9 && i <= 22 ? 5 : v)),
 				dayFrequencies: [15, 2, 2, 2, 2, 2, 15], // Weekend heavy (Sun=0, Sat=6)
 				typicalReferrers: ['https://twitter.com'],
 			};

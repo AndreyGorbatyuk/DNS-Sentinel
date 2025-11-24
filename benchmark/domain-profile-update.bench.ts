@@ -6,16 +6,18 @@
  * @uses types.ts
  */
 
-import { describe, bench, beforeEach } from 'vitest';
+import { beforeEach, bench, describe } from 'vitest';
 import type { DomainProfile, WelfordStats } from '../src/types/index.ts';
 
 // Mock chrome.storage.local with performance tracking
-let storageData: Record<string, any> = {};
+type StorageRecord = Record<string, unknown>;
+
+let storageData: StorageRecord = {};
 let storageOps = 0;
 
 const mockChromeStorage = {
 	local: {
-		get: async (key: string | string[] | Record<string, any> | null) => {
+		get: async (key: string | string[] | StorageRecord | null): Promise<StorageRecord> => {
 			storageOps++;
 			if (key === null) {
 				return { ...storageData };
@@ -24,7 +26,7 @@ const mockChromeStorage = {
 				return { [key]: storageData[key] };
 			}
 			if (Array.isArray(key)) {
-				const result: Record<string, any> = {};
+				const result: StorageRecord = {};
 				for (const k of key) {
 					if (k in storageData) {
 						result[k] = storageData[k];
@@ -34,7 +36,7 @@ const mockChromeStorage = {
 			}
 			return {};
 		},
-		set: async (items: Record<string, any>) => {
+		set: async (items: StorageRecord): Promise<void> => {
 			storageOps++;
 			Object.assign(storageData, items);
 		},
@@ -52,7 +54,13 @@ const mockChromeStorage = {
 	},
 };
 
-(globalThis as any).chrome = mockChromeStorage;
+type ChromeShim = typeof globalThis & {
+	chrome: {
+		storage: typeof mockChromeStorage;
+	};
+};
+
+(globalThis as ChromeShim).chrome = { storage: mockChromeStorage };
 
 // Mock domain statistics functions
 const getDomainProfile = async (domain: string): Promise<DomainProfile | null> => {
@@ -79,7 +87,11 @@ const getAllProfiles = async (): Promise<DomainProfile[]> => {
 };
 
 // Helper: Generate profile
-function generateProfile(domain: string, requestCount: number, lastSeen: number = Date.now()): DomainProfile {
+function generateProfile(
+	domain: string,
+	requestCount: number,
+	lastSeen: number = Date.now(),
+): DomainProfile {
 	const now = Date.now();
 	const timestamps = Array.from({ length: Math.min(requestCount, 120) }, (_, i) => now - i * 1000);
 
@@ -416,7 +428,7 @@ describe('DomainProfile Update Benchmarks', () => {
 
 	describe('HOTSPOT: Profile Migration', () => {
 		bench('migrate v1 -> v2 (add new fields)', () => {
-			const v1Profile: any = {
+			const v1Profile = {
 				domain: 'example.com',
 				firstSeen: Date.now() - 86400000,
 				lastSeen: Date.now() - 3600000,
@@ -459,7 +471,7 @@ describe('DomainProfile Update Benchmarks', () => {
 		});
 
 		bench('batch migration (10 profiles)', () => {
-			const v1Profiles: any[] = Array.from({ length: 10 }, (_, i) => ({
+			const v1Profiles = Array.from({ length: 10 }, (_, i) => ({
 				domain: `example${i}.com`,
 				firstSeen: Date.now() - 86400000,
 				lastSeen: Date.now() - 3600000,
@@ -603,7 +615,9 @@ describe('DomainProfile Update Benchmarks', () => {
 		});
 
 		bench('measure 100 profiles total size', () => {
-			const profiles = Array.from({ length: 100 }, (_, i) => generateProfile(`example${i}.com`, 50));
+			const profiles = Array.from({ length: 100 }, (_, i) =>
+				generateProfile(`example${i}.com`, 50),
+			);
 			const json = JSON.stringify(profiles);
 			return json.length;
 		});

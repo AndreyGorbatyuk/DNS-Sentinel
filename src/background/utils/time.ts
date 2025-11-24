@@ -6,11 +6,7 @@ export function getDayOfWeek(timestamp: number): number {
 	return new Date(timestamp).getDay();
 }
 
-export function slidingWindowCount(
-	series: number[],
-	now: number,
-	windowSec: number
-): number {
+export function slidingWindowCount(series: number[], now: number, windowSec: number): number {
 	if (series.length === 0) return 0;
 
 	const cutoff = now - windowSec * 1000;
@@ -30,11 +26,7 @@ export function slidingWindowCount(
 	return series.length - left;
 }
 
-export function appendToTimeSeries(
-	series: number[],
-	timestamp: number,
-	maxSize = 120
-): void {
+export function appendToTimeSeries(series: number[], timestamp: number, maxSize = 120): void {
 	series.push(timestamp);
 	if (series.length > maxSize) {
 		series.shift();
@@ -59,4 +51,3 @@ export function secToMs(seconds: number): number {
 export function msToSec(ms: number): number {
 	return Math.floor(ms / 1000);
 }
-

@@ -15,22 +15,22 @@ export async function getConfig(): Promise<Configuration> {
 				allowTelemetry: stored?.privacy?.allowTelemetry ?? false,
 			},
 			thresholds: {
-				critical: stored?.thresholds?.critical ?? 0.80,
-				high: stored?.thresholds?.high ?? 0.60,
-				medium: stored?.thresholds?.medium ?? 0.40,
+				critical: stored?.thresholds?.critical ?? 0.8,
+				high: stored?.thresholds?.high ?? 0.6,
+				medium: stored?.thresholds?.medium ?? 0.4,
 			},
 			weights: {
 				M1: stored?.weights?.M1 ?? 0.15,
 				M2: stored?.weights?.M2 ?? 0.25,
-				M3: stored?.weights?.M3 ?? 0.40,
-				M4: stored?.weights?.M4 ?? 0.20,
+				M3: stored?.weights?.M3 ?? 0.4,
+				M4: stored?.weights?.M4 ?? 0.2,
 			},
 			groups: {
 				rate: { enabled: stored?.groups?.rate?.enabled ?? true, weight: 0.15 },
 				entropy: { enabled: stored?.groups?.entropy?.enabled ?? true, weight: 0.25 },
 				reputation: {
 					enabled: stored?.groups?.reputation?.enabled ?? true,
-					weight: 0.40,
+					weight: 0.4,
 					cacheTTL: stored?.groups?.reputation?.cacheTTL ?? 24,
 					sources: stored?.groups?.reputation?.sources ?? [
 						{ name: 'Google Safe Browsing', enabled: true, weight: 0.4 },
@@ -41,7 +41,7 @@ export async function getConfig(): Promise<Configuration> {
 				},
 				behavior: {
 					enabled: stored?.groups?.behavior?.enabled ?? true,
-					weight: 0.20,
+					weight: 0.2,
 					minHistoryRequests: stored?.groups?.behavior?.minHistoryRequests ?? 5,
 					minHistoryDays: stored?.groups?.behavior?.minHistoryDays ?? 1,
 				},
@@ -67,14 +67,14 @@ export async function getConfig(): Promise<Configuration> {
 			enabled: true,
 			sensitivity: 'balanced',
 			privacy: { collectStatistics: false, allowTelemetry: false },
-			thresholds: { critical: 0.80, high: 0.60, medium: 0.40 },
-			weights: { M1: 0.15, M2: 0.25, M3: 0.40, M4: 0.20 },
+			thresholds: { critical: 0.8, high: 0.6, medium: 0.4 },
+			weights: { M1: 0.15, M2: 0.25, M3: 0.4, M4: 0.2 },
 			groups: {
 				rate: { enabled: true, weight: 0.15 },
 				entropy: { enabled: true, weight: 0.25 },
 				reputation: {
 					enabled: true,
-					weight: 0.40,
+					weight: 0.4,
 					cacheTTL: 24,
 					sources: [
 						{ name: 'Google Safe Browsing', enabled: true, weight: 0.4 },
@@ -85,7 +85,7 @@ export async function getConfig(): Promise<Configuration> {
 				},
 				behavior: {
 					enabled: true,
-					weight: 0.20,
+					weight: 0.2,
 					minHistoryRequests: 5,
 					minHistoryDays: 1,
 				},
@@ -102,4 +102,3 @@ export async function saveConfig(_config: Partial<Configuration>): Promise<void>
 export async function resetConfig(): Promise<void> {
 	// TODO: implement
 }
-

@@ -6,8 +6,7 @@
  * @uses api/configuration.api.md
  */
 
-
-import type { MetricResult, Configuration } from '../../../types.ts';
+import type { Configuration, MetricResult } from '../../../types.ts';
 
 import { getConfig } from '../storage/configuration-store.ts';
 
@@ -75,10 +74,7 @@ export class RiskAggregator {
 		const riskScore = totalWeight > 0 ? weightedSum / totalWeight : 0.5;
 
 		// Harmonic mean of confidence (penalizes low-confidence inputs)
-		const confidence =
-			confidences.length > 0
-				? this.harmonicMean(confidences)
-				: 0.0;
+		const confidence = confidences.length > 0 ? this.harmonicMean(confidences) : 0.0;
 
 		const details: RiskDetails = {
 			riskScore,

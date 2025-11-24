@@ -1,8 +1,8 @@
 // popup.js - минимальная логика для демонстрации пайплайна
 
 import { getConfig } from './configuration-store.js';
-import { RiskAggregator } from './risk-aggregator.js';
 import { RateMetricCalculator } from './rate-calculator.js';
+import { RiskAggregator } from './risk-aggregator.js';
 
 let config;
 const aggregator = new RiskAggregator();
@@ -19,7 +19,7 @@ const TEST_DOMAINS = [
 	'paypa1-secure.net',
 	'amaz0n-login.com',
 	'microsofft-support.com',
-	'apple-verify.net'
+	'apple-verify.net',
 ];
 
 async function init() {
@@ -52,7 +52,7 @@ async function scanCurrentTab() {
 			url: `https://${domain}/`,
 			timestamp: Date.now(),
 			userAgent: navigator.userAgent,
-			resourceType: 'main_frame'
+			resourceType: 'main_frame',
 		};
 
 		// Только M1 (rate) для демонстрации
@@ -65,7 +65,7 @@ async function scanCurrentTab() {
 			domain,
 			risk: riskScore,
 			confidence,
-			level: getRiskLevel(riskScore)
+			level: getRiskLevel(riskScore),
 		});
 	}
 
@@ -81,13 +81,17 @@ function getRiskLevel(score) {
 
 function renderRisks(results) {
 	const resultsEl = document.getElementById('results');
-	resultsEl.innerHTML = results.map(r => `
+	resultsEl.innerHTML = results
+		.map(
+			(r) => `
 		<div class="domain">
 			<span class="domain-name">${r.domain}</span>
 			<span class="risk ${r.level}">${(r.risk * 100).toFixed(0)}%</span>
 		</div>
-	`).join('');
+	`,
+		)
+		.join('');
 }
 
 // Запуск
-init().catch(err => console.error('Init failed:', err));
+init().catch((err) => console.error('Init failed:', err));
