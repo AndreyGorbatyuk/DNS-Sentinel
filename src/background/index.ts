@@ -40,6 +40,12 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 			const { riskScore, confidence } = await riskAgg.aggregate([m1, m2, m3, m4]);
 
+			const finalRiskLevel = riskScore >= config.thresholds.critical ? 'critical' : null;
+			if (finalRiskLevel === 'critical' || riskScore >= 0.95) {
+				console.log('BLOCKED:', domain);
+				return { cancel: true };
+			}
+
 			const profile = await getDomainProfile(domain);
 			if (profile) {
 				if (!profile.riskHistory) profile.riskHistory = [];
@@ -58,5 +64,5 @@ chrome.webRequest.onBeforeRequest.addListener(
 		}
 	},
 	{ urls: ['<all_urls>'] },
-	['requestBody'],
+	['blocking'],
 );

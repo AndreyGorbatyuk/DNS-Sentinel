@@ -58,7 +58,7 @@ DNS-Sentinel/
 
 1. ~~Icon files are placeholders (need real PNG files)~~ ✅ Fixed: Real PNG icons with red shield design
 2. External reputation APIs are mocked (PhishTank, GSB disabled by default)
-3. No blocking logic — currently only logs warnings
+3. ~~No blocking logic — currently only logs warnings~~ ✅ Fixed: Request blocking implemented for critical risks (riskLevel === 'critical' or riskScore >= 0.95)
 
 ---
 
@@ -201,7 +201,7 @@ pnpm format
 - [x] Implement risk history tracking in background service worker (write to `riskHistory` in domain profiles)
 - [x] Update popup.ts to read new riskHistory format (objects with timestamp and riskScore)
 - [ ] Integrate real reputation APIs or configure API endpoints (PhishTank, Google Safe Browsing - addresses limitation #2)
-- [ ] Implement request blocking logic for high-risk domains (optional - currently only logs warnings - addresses limitation #3)
+- [x] Implement request blocking logic for high-risk domains (blocking implemented for critical risks - addresses limitation #3)
 - [ ] Add user notification system for critical risks (alerts when risk score exceeds thresholds)
 
 **Functionality Testing:**
@@ -418,14 +418,14 @@ pnpm test --bench
 ### Current issues
 
 1. ~~Icons are placeholders — replace with real PNG files~~ ✅ Fixed
-2. No blocking — currently only logs; add blocking logic if needed
+2. ~~No blocking — currently only logs; add blocking logic if needed~~ ✅ Fixed
 3. Reputation APIs mocked — external APIs disabled by default
 
 ### Recommended next steps
 
 1. ~~Add real icon files (16x16, 48x48, 128x128 PNG)~~ ✅ Completed
 2. Add user notification system for critical risks
-3. Implement request blocking for high-risk domains (optional)
+3. ~~Implement request blocking for high-risk domains (optional)~~ ✅ Completed
 4. Add options page for configuration (if needed)
 5. Set up CI/CD for automated testing
 
