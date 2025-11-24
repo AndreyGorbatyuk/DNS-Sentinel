@@ -33,6 +33,7 @@ DNS-Sentinel/
   - 4 metric calculators (Rate, Entropy, Reputation, Behavior)
   - Risk aggregator with weighted sum + harmonic mean
   - Domain statistics storage with Welford's algorithm
+  - Risk history tracking (timestamp + riskScore pairs, capped at 100 entries)
   - Configuration management
   - Pure utility functions (math, normalization, domain parsing)
 
@@ -56,9 +57,8 @@ DNS-Sentinel/
 ### Current limitations
 
 1. Icon files are placeholders (need real PNG files)
-2. Popup shows risk history, but background doesn't write to `riskHistory` yet
-3. External reputation APIs are mocked (PhishTank, GSB disabled by default)
-4. No blocking logic — currently only logs warnings
+2. External reputation APIs are mocked (PhishTank, GSB disabled by default)
+3. No blocking logic — currently only logs warnings
 
 ---
 
@@ -198,9 +198,10 @@ pnpm format
 - [ ] Add extension description and screenshots for Chrome Web Store
 
 **Current Limitations Fixes:**
-- [ ] Implement risk history tracking in background service worker (write to `riskHistory` in domain profiles - addresses limitation #2)
-- [ ] Integrate real reputation APIs or configure API endpoints (PhishTank, Google Safe Browsing - addresses limitation #3)
-- [ ] Implement request blocking logic for high-risk domains (optional - currently only logs warnings - addresses limitation #4)
+- [x] Implement risk history tracking in background service worker (write to `riskHistory` in domain profiles)
+- [x] Update popup.ts to read new riskHistory format (objects with timestamp and riskScore)
+- [ ] Integrate real reputation APIs or configure API endpoints (PhishTank, Google Safe Browsing - addresses limitation #2)
+- [ ] Implement request blocking logic for high-risk domains (optional - currently only logs warnings - addresses limitation #3)
 - [ ] Add user notification system for critical risks (alerts when risk score exceeds thresholds)
 
 **Functionality Testing:**
@@ -417,18 +418,16 @@ pnpm test --bench
 ### Current issues
 
 1. Icons are placeholders — replace with real PNG files
-2. Risk history not written — background needs to update `riskHistory` in profiles
-3. No blocking — currently only logs; add blocking logic if needed
-4. Reputation APIs mocked — external APIs disabled by default
+2. No blocking — currently only logs; add blocking logic if needed
+3. Reputation APIs mocked — external APIs disabled by default
 
 ### Recommended next steps
 
 1. Add real icon files (16x16, 48x48, 128x128 PNG)
-2. Implement risk history tracking in background service worker
-3. Add user notification system for critical risks
-4. Implement request blocking for high-risk domains (optional)
-5. Add options page for configuration (if needed)
-6. Set up CI/CD for automated testing
+2. Add user notification system for critical risks
+3. Implement request blocking for high-risk domains (optional)
+4. Add options page for configuration (if needed)
+5. Set up CI/CD for automated testing
 
 ---
 

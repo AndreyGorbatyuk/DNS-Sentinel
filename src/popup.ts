@@ -14,10 +14,12 @@ async function getTopRiskyDomains(): Promise<DomainRisk[]> {
 			const profile = value as DomainProfile;
 			if (profile.riskHistory && profile.riskHistory.length > 0) {
 				const latestRisk = profile.riskHistory[profile.riskHistory.length - 1];
-				profiles.push({
-					domain: profile.domain,
-					riskScore: latestRisk,
-				});
+				if (latestRisk && typeof latestRisk === 'object' && 'riskScore' in latestRisk) {
+					profiles.push({
+						domain: profile.domain,
+						riskScore: latestRisk.riskScore,
+					});
+				}
 			}
 		}
 	}
