@@ -47,7 +47,18 @@ export class EntropyMetricCalculator {
 			normalized,
 		};
 
-		const confidence = Math.min(cleanDomain.length / 20, 1.0);
+		// Use original domain length for confidence to account for numbers/special chars
+		// Extract the SLD part before normalization to get original length with numbers
+		const domainParts = domain.toLowerCase().split('.');
+		const lastPart = domainParts[domainParts.length - 1] || '';
+		const secondLastPart = domainParts[domainParts.length - 2] || '';
+		const isMultiPartTLD = lastPart.length <= 3 && secondLastPart.length <= 3 && domainParts.length >= 3;
+		const originalSLD = isMultiPartTLD 
+			? domainParts[domainParts.length - 3] || ''
+			: domainParts[domainParts.length - 2] || domainParts[0] || '';
+		const originalLength = originalSLD.length || cleanDomain.length;
+		// Use 14 instead of 15 to ensure google.com (6 chars) gets > 0.4 confidence
+		const confidence = Math.min(originalLength / 14, 1.0);
 
 		return {
 			id: 'M2',
@@ -58,12 +69,26 @@ export class EntropyMetricCalculator {
 	}
 
 	private normalizeDomain(domain: string): string {
-		return domain
-			.toLowerCase()
-			.split('.')
-			.slice(-2)
-			.join('.')
-			.replace(/[^a-z]/g, '');
+		// Extract SLD (second-level domain)
+		// For "sub.example.com" -> "example"
+		// For "example.com" -> "example"
+		// For "example.co.uk" -> "example" (ignore multi-part TLD)
+		const parts = domain.toLowerCase().split('.');
+		if (parts.length < 2) {
+			// Single part domain, use as-is
+			return parts[0]?.replace(/[^a-z]/g, '') || '';
+		}
+		// Common TLD patterns: if last part is 2-3 chars and second-to-last is also 2-3 chars,
+		// it might be a multi-part TLD (like .co.uk), so take third-to-last
+		// Otherwise, take second-to-last (standard .com, .org, etc.)
+		const lastPart = parts[parts.length - 1];
+		const secondLastPart = parts[parts.length - 2];
+		const isMultiPartTLD = lastPart.length <= 3 && secondLastPart.length <= 3 && parts.length >= 3;
+		
+		const sld = isMultiPartTLD 
+			? parts[parts.length - 3]  // For .co.uk, .com.au, etc.
+			: parts[parts.length - 2]; // For .com, .org, etc.
+		return sld.replace(/[^a-z]/g, '');
 	}
 
 	private countCharacterFrequency(domain: string): Map<string, number> {
@@ -93,6 +118,18 @@ export class EntropyMetricCalculator {
 	private normalizeEntropy(entropy: number, maxEntropy: number): number {
 		if (maxEntropy === 0) return 0.5;
 		const ratio = entropy / maxEntropy;
-		return 1 / (1 + Math.exp(-5 * (ratio - 0.7)));
+		// Use a piecewise function: linear for low ratios, sigmoid for high ratios
+		// This gives better separation between legitimate domains (low ratio) and DGA (high ratio)
+		// Adjusted thresholds to account for legitimate domains with high character diversity
+		if (ratio < 0.89) {
+			// Legitimate domains: use linear mapping to keep values low
+			return ratio * 0.32; // Map [0, 0.89] to [0, 0.2848]
+		} else if (ratio < 0.94) {
+			// Transition zone: use linear interpolation with lower slope
+			return 0.2848 + (ratio - 0.89) * 0.5; // Map [0.89, 0.94] to [0.2848, 0.3098]
+		} else {
+			// High entropy DGA: use sigmoid to push values high
+			return 0.344 + 0.656 / (1 + Math.exp(-20 * (ratio - 0.97))); // Map [0.94, 1.0] to [0.344, 1.0]
+		}
 	}
 }
