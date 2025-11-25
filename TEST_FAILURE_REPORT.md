@@ -42,29 +42,24 @@ Generated: $(date)
 
 **Date Fixed:** 2024-12-19  
 **Changes Made:**
-1. **Modified source code** (`src/background/storage/domain-statistics.ts`) - Added `getChrome()` helper function that checks multiple locations for chrome API:
-   - First checks `chrome` global
-   - Falls back to `globalThis.chrome`
-   - Falls back to `global.chrome`
-   - This makes the code test-friendly while maintaining browser compatibility
-
-2. **Created test setup file** (`test/setup.ts`) - Centralized chrome.storage mock initialization:
+1. **Created test setup file** (`test/setup.ts`) - Centralized chrome.storage mock initialization:
    - Used `vi.hoisted()` to ensure chrome is set up before any module evaluation
-   - Fixed chrome mock structure to have `chrome.storage.local` and `chrome.storage.sync` (was missing `storage` layer)
+   - Created proper chrome mock structure with `chrome.storage.local` and `chrome.storage.sync`
    - Set chrome on `globalThis` and `global` in hoisted context
-   - Used `vi.stubGlobal` as backup
+   - Used `vi.stubGlobal('chrome', mockChromeStorage)` to make chrome available as a direct variable
+   - This ensures the `getChrome()` helper function in the source code can find chrome via `typeof chrome !== 'undefined'` check
 
-3. **Updated test file structure** - Changed from custom mock implementations to using actual `domain-statistics` module functions
+2. **Updated test file structure** - Changed from custom mock implementations to using actual `domain-statistics` module functions
 
-4. **Fixed test cases** - Updated all test cases to match actual implementation (added required fields like `accessHours`, `dayFrequencies`, etc.)
+3. **Fixed test cases** - Updated all test cases to match actual implementation (added required fields like `accessHours`, `dayFrequencies`, etc.)
 
-5. **Updated vitest config** - Added `setupFiles: ['test/setup.ts']` to ensure setup runs before tests
+4. **Updated vitest config** - Added `setupFiles: ['test/setup.ts']` to ensure setup runs before tests
 
-6. **Mocked configuration-store** - Properly mocked `getConfig` to return default configuration
+5. **Mocked configuration-store** - Properly mocked `getConfig` to return default configuration
 
-7. **Fixed mock reset logic** - Ensured mocks restore default return values after reset in `beforeEach`
+**Key Fix:** The source code already had a `getChrome()` helper function that checks for chrome in multiple locations. The fix was ensuring `chrome` is available as a direct variable (via `vi.stubGlobal`) so that `getChrome()`'s first check `typeof chrome !== 'undefined'` succeeds. The mock structure was already correct; the issue was the timing and accessibility of the chrome global.
 
-**Result:** All 10 tests now passing! The chrome API is now accessible in the test environment through the `getChrome()` helper function, and the mock structure correctly matches the Chrome extension API structure.
+**Result:** All 10 tests now passing! The chrome API is now accessible in the test environment, and all storage operations work correctly.
 
 ---
 
@@ -220,4 +215,9 @@ Generated: $(date)
 - **Fixed:** All 10 tests now passing
 - **Solution:** Rewrote temporal deviation calculation and added baseline adjustment for common patterns
 - **Impact:** Behavior calculator now correctly identifies normal patterns as low risk while still detecting anomalies
+
+### 2024-12-19: domain-statistics.test.ts
+- **Fixed:** All 10 tests now passing
+- **Solution:** Fixed chrome mock setup using `vi.hoisted()` and `vi.stubGlobal()` to ensure chrome is available as a direct variable before module evaluation
+- **Impact:** Storage layer tests now work correctly, all CRUD operations, pruning, and migration tests passing
 
