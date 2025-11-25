@@ -19,61 +19,39 @@ vi.mock('../src/background/storage/configuration-store.js', () => ({
 
 import { getConfig } from '../src/background/storage/configuration-store.js';
 
-// Use dynamic import to ensure chrome is set up before module loads
-let createInitialProfile: any;
-let getDomainProfile: any;
-let updateDomainProfile: any;
-
-beforeAll(async () => {
-	// Clear module cache to ensure fresh import
-	vi.resetModules();
-	
-	// Ensure chrome is set up on all possible global objects BEFORE importing
-	const chromeMock = {
-		local: mockChromeStorageLocal,
-		sync: mockChromeStorageSync,
-	};
-	
-	// Set on all possible global scopes
-	(globalThis as any).chrome = chromeMock;
-	if (typeof global !== 'undefined') {
-		(global as any).chrome = chromeMock;
-	}
-	
-	// Verify chrome is accessible
-	if (typeof (globalThis as any).chrome === 'undefined') {
-		throw new Error('chrome is not available on globalThis');
-	}
-	
-	// Now import the module after chrome is set up
-	const domainStats = await import('../src/background/storage/domain-statistics.js');
-	createInitialProfile = domainStats.createInitialProfile;
-	getDomainProfile = domainStats.getDomainProfile;
-	updateDomainProfile = domainStats.updateDomainProfile;
-});
+// Import the module directly - chrome should be set up by setup.ts via vi.hoisted
+import {
+	createInitialProfile,
+	getDomainProfile,
+	updateDomainProfile,
+} from '../src/background/storage/domain-statistics.js';
 
 describe('DomainStatistics', () => {
 	beforeEach(() => {
 		// Ensure chrome is available (in case module cache was cleared)
 		if (typeof globalThis !== 'undefined' && !(globalThis as any).chrome) {
 			(globalThis as any).chrome = {
-				local: mockChromeStorageLocal,
-				sync: mockChromeStorageSync,
+				storage: {
+					local: mockChromeStorageLocal,
+					sync: mockChromeStorageSync,
+				},
 			};
 		}
 		if (typeof global !== 'undefined' && !(global as any).chrome) {
 			(global as any).chrome = {
-				local: mockChromeStorageLocal,
-				sync: mockChromeStorageSync,
+				storage: {
+					local: mockChromeStorageLocal,
+					sync: mockChromeStorageSync,
+				},
 			};
 		}
 
-		// Reset all mocks
-		vi.mocked(mockChromeStorageLocal.get).mockReset();
-		vi.mocked(mockChromeStorageLocal.set).mockReset();
-		vi.mocked(mockChromeStorageLocal.remove).mockReset();
-		vi.mocked(mockChromeStorageLocal.clear).mockReset();
-		vi.mocked(mockChromeStorageSync.get).mockReset();
+		// Reset all mocks and restore default implementations
+		vi.mocked(mockChromeStorageLocal.get).mockReset().mockResolvedValue({});
+		vi.mocked(mockChromeStorageLocal.set).mockReset().mockResolvedValue(undefined);
+		vi.mocked(mockChromeStorageLocal.remove).mockReset().mockResolvedValue(undefined);
+		vi.mocked(mockChromeStorageLocal.clear).mockReset().mockResolvedValue(undefined);
+		vi.mocked(mockChromeStorageSync.get).mockReset().mockResolvedValue({});
 
 		// Default config with storage enabled
 		vi.mocked(getConfig).mockResolvedValue({

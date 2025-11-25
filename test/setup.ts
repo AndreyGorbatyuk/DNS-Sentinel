@@ -1,42 +1,44 @@
 import { vi } from 'vitest';
 
-// Set up chrome mock before any tests run
-// Default all methods to return resolved promises
-const mockChromeStorageLocal = {
-	get: vi.fn().mockResolvedValue({}),
-	set: vi.fn().mockResolvedValue(undefined),
-	remove: vi.fn().mockResolvedValue(undefined),
-	clear: vi.fn().mockResolvedValue(undefined),
-};
+// Use vi.hoisted to ensure chrome is set up before any module evaluation
+const { mockChromeStorageLocal, mockChromeStorageSync, mockChromeStorage } = vi.hoisted(() => {
+	// Default all methods to return resolved promises
+	const local = {
+		get: vi.fn().mockResolvedValue({}),
+		set: vi.fn().mockResolvedValue(undefined),
+		remove: vi.fn().mockResolvedValue(undefined),
+		clear: vi.fn().mockResolvedValue(undefined),
+	};
 
-const mockChromeStorageSync = {
-	get: vi.fn().mockResolvedValue({}),
-	set: vi.fn().mockResolvedValue(undefined),
-	remove: vi.fn().mockResolvedValue(undefined),
-	clear: vi.fn().mockResolvedValue(undefined),
-};
+	const sync = {
+		get: vi.fn().mockResolvedValue({}),
+		set: vi.fn().mockResolvedValue(undefined),
+		remove: vi.fn().mockResolvedValue(undefined),
+		clear: vi.fn().mockResolvedValue(undefined),
+	};
 
-const mockChromeStorage = {
-	local: mockChromeStorageLocal,
-	sync: mockChromeStorageSync,
-};
+	const chrome = {
+		storage: {
+			local,
+			sync,
+		},
+	};
 
-// Use vi.stubGlobal to ensure chrome is available globally
+	// Set chrome on globalThis immediately in hoisted context
+	if (typeof globalThis !== 'undefined') {
+		(globalThis as any).chrome = chrome;
+	}
+	if (typeof global !== 'undefined') {
+		(global as any).chrome = chrome;
+	}
+
+	return { mockChromeStorageLocal: local, mockChromeStorageSync: sync, mockChromeStorage: chrome };
+});
+
+// Also use vi.stubGlobal as a backup
 vi.stubGlobal('chrome', mockChromeStorage);
 
-// Set it on all possible global objects to ensure it's accessible
-if (typeof globalThis !== 'undefined') {
-	(globalThis as any).chrome = mockChromeStorage;
-}
-if (typeof global !== 'undefined') {
-	(global as any).chrome = mockChromeStorage;
-}
-// In Node.js, also set it on the process global
-if (typeof process !== 'undefined' && (process as any).global) {
-	((process as any).global as any).chrome = mockChromeStorage;
-}
-
-// Use Object.defineProperty to make it non-configurable and ensure it persists
+// Use Object.defineProperty to ensure it's accessible
 try {
 	Object.defineProperty(globalThis, 'chrome', {
 		value: mockChromeStorage,

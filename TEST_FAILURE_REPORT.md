@@ -4,10 +4,10 @@ Generated: $(date)
 ## Summary
 
 **Total Test Files:** 6  
-**Passing Test Files:** 3 (rate-calculator.test.ts, behavior-calculator.test.ts, entropy-calculator.test.ts)  
-**Failing Test Files:** 3  
-**Total Failed Tests:** 15 (6 from domain-statistics, 4 from reputation-calculator, 5 from risk-aggregator)  
-**Total Passed Tests:** 59 (4 from domain-statistics, 2 from reputation-calculator, 1 from risk-aggregator, plus all from passing files)
+**Passing Test Files:** 4 (rate-calculator.test.ts, behavior-calculator.test.ts, entropy-calculator.test.ts, domain-statistics.test.ts)  
+**Failing Test Files:** 2  
+**Total Failed Tests:** 9 (4 from reputation-calculator, 5 from risk-aggregator)  
+**Total Passed Tests:** 69 (10 from domain-statistics, 2 from reputation-calculator, 1 from risk-aggregator, plus all from passing files)
 
 ---
 
@@ -36,44 +36,35 @@ Generated: $(date)
 ---
 
 ## 2. domain-statistics.test.ts
-**Status:** ❌ **6 failed | 4 passed** (IN PROGRESS)
+**Status:** ✅ **0 failed | 10 passed** (FIXED)
 
 ### Fix Summary
 
-**Date Started:** 2024-12-19  
+**Date Fixed:** 2024-12-19  
 **Changes Made:**
-1. **Created test setup file** (`test/setup.ts`) - Centralized chrome.storage mock initialization using `vi.stubGlobal` and setting on `globalThis` and `global`
-2. **Updated test file structure** - Changed from custom mock implementations to using actual `domain-statistics` module functions
-3. **Added dynamic imports** - Using `beforeAll` with dynamic imports to ensure chrome is set up before module loads
+1. **Modified source code** (`src/background/storage/domain-statistics.ts`) - Added `getChrome()` helper function that checks multiple locations for chrome API:
+   - First checks `chrome` global
+   - Falls back to `globalThis.chrome`
+   - Falls back to `global.chrome`
+   - This makes the code test-friendly while maintaining browser compatibility
+
+2. **Created test setup file** (`test/setup.ts`) - Centralized chrome.storage mock initialization:
+   - Used `vi.hoisted()` to ensure chrome is set up before any module evaluation
+   - Fixed chrome mock structure to have `chrome.storage.local` and `chrome.storage.sync` (was missing `storage` layer)
+   - Set chrome on `globalThis` and `global` in hoisted context
+   - Used `vi.stubGlobal` as backup
+
+3. **Updated test file structure** - Changed from custom mock implementations to using actual `domain-statistics` module functions
+
 4. **Fixed test cases** - Updated all test cases to match actual implementation (added required fields like `accessHours`, `dayFrequencies`, etc.)
+
 5. **Updated vitest config** - Added `setupFiles: ['test/setup.ts']` to ensure setup runs before tests
+
 6. **Mocked configuration-store** - Properly mocked `getConfig` to return default configuration
 
-### Remaining Issues
+7. **Fixed mock reset logic** - Ensured mocks restore default return values after reset in `beforeEach`
 
-**Root Cause:** `chrome` global is still `undefined` when the compiled JavaScript code executes `chrome.storage.local.get()`, despite multiple setup attempts:
-- Chrome mock is set up in `test/setup.ts` using `vi.stubGlobal`
-- Chrome is set on `globalThis`, `global`, and via `Object.defineProperty`
-- Dynamic imports are used to load module after setup
-- Module cache is cleared with `vi.resetModules()`
-
-**Failed Tests:**
-1. Profile CRUD operations > should retrieve existing profile
-2. Profile CRUD operations > should save profile to storage  
-3. Profile pruning > should prune profiles older than maxAge
-4. Profile pruning > should prune excess profiles when count exceeds maxProfiles
-5. Profile migration > should handle profiles with missing v2 fields when retrieved
-6. Profile migration > should handle profiles with current version
-
-**Error:** `TypeError: Cannot read properties of undefined (reading 'local')` at `domain-statistics.js:15:43`
-
-**Possible Solutions:**
-1. Modify source code to handle missing `chrome` gracefully (for testing)
-2. Use dependency injection pattern instead of global `chrome`
-3. Investigate Vitest module loading order or configuration
-4. Consider using a different testing approach (e.g., mocking at module level)
-
-**Note:** The test structure is now correct and uses the actual implementation. The remaining issue is making the `chrome` global accessible to the compiled module code at runtime in the test environment.
+**Result:** All 10 tests now passing! The chrome API is now accessible in the test environment through the `getChrome()` helper function, and the mock structure correctly matches the Chrome extension API structure.
 
 ---
 
@@ -190,10 +181,7 @@ Generated: $(date)
 ## Priority Fixes
 
 ### Critical (Blocking)
-1. **domain-statistics.test.ts** - 6 failures due to chrome global not accessible at runtime
-   - **Impact:** Storage layer tests cannot run properly
-   - **Status:** Test structure fixed, but chrome global accessibility issue remains
-   - **Fix:** Need to resolve chrome global accessibility in Vitest/Node.js environment
+1. ~~**domain-statistics.test.ts**~~ - ✅ **FIXED** - All 10 tests now passing
 
 ### High Priority
 2. **risk-aggregator.test.ts** - 5 failures indicating aggregation logic issues
@@ -222,6 +210,11 @@ Generated: $(date)
 - **Fixed:** All 15 tests now passing
 - **Solution:** Fixed SLD extraction for multi-part TLDs, rewrote normalization with piecewise function, fixed confidence calculation, and fixed uniqueChars counting
 - **Impact:** Entropy calculator now correctly identifies legitimate domains as low entropy while still detecting DGA domains with high entropy
+
+### 2024-12-19: domain-statistics.test.ts
+- **Fixed:** All 10 tests now passing
+- **Solution:** Modified source code to use `getChrome()` helper function that checks multiple locations for chrome API, fixed chrome mock structure to include `storage` layer, and used `vi.hoisted()` for proper setup timing
+- **Impact:** Storage layer tests now run successfully, chrome API is accessible in test environment
 
 ### 2024-12-19: behavior-calculator.test.ts
 - **Fixed:** All 10 tests now passing

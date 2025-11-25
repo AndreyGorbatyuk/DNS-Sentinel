@@ -13,10 +13,18 @@ const STORAGE_KEYS = {
 const MAX_PROFILES = 10_000;
 const PROFILE_TTL_DAYS = 90;
 
+// Helper to get chrome API (works in both browser and test environments)
+function getChrome() {
+	if (typeof chrome !== 'undefined') return chrome;
+	if (typeof globalThis !== 'undefined' && (globalThis as any).chrome) return (globalThis as any).chrome;
+	if (typeof global !== 'undefined' && (global as any).chrome) return (global as any).chrome;
+	throw new Error('chrome API is not available');
+}
+
 export async function getDomainProfile(domain: string): Promise<DomainProfile | null> {
 	try {
 		const key = STORAGE_KEYS.profile(domain);
-		const data = await chrome.storage.local.get(key);
+		const data = await getChrome().storage.local.get(key);
 		const profile = data[key] as DomainProfile | undefined;
 
 		if (!profile) return null;
@@ -57,7 +65,7 @@ export async function updateDomainProfile(domain: string, profile: DomainProfile
 
 		await enforceStorageLimits();
 
-		await chrome.storage.local.set(batch);
+		await getChrome().storage.local.set(batch);
 	} catch (error) {
 		console.error(`[DomainStatistics] Failed to update profile for ${domain}:`, error);
 	}
@@ -109,7 +117,7 @@ export function pruneTimeSeries(series: number[], windowSec: number): void {
 async function removeDomainProfile(domain: string): Promise<void> {
 	try {
 		const keys = [STORAGE_KEYS.profile(domain), STORAGE_KEYS.metadata(domain)];
-		await chrome.storage.local.remove(keys);
+		await getChrome().storage.local.remove(keys);
 	} catch (error) {
 		console.warn(`[DomainStatistics] Failed to remove profile for ${domain}:`, error);
 	}
@@ -117,7 +125,7 @@ async function removeDomainProfile(domain: string): Promise<void> {
 
 async function enforceStorageLimits(): Promise<void> {
 	try {
-		const all = await chrome.storage.local.get(null);
+		const all = await getChrome().storage.local.get(null);
 		const profileEntries = Object.entries(all).filter(([k]) => k.startsWith('profile_'));
 
 		if (profileEntries.length <= MAX_PROFILES) return;
@@ -136,7 +144,7 @@ async function enforceStorageLimits(): Promise<void> {
 			STORAGE_KEYS.metadata(entry.key.replace('profile_', '')),
 		]);
 
-		await chrome.storage.local.remove(removeKeys);
+		await getChrome().storage.local.remove(removeKeys);
 	} catch (error) {
 		console.error('[DomainStatistics] Storage cleanup failed:', error);
 	}
