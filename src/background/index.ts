@@ -16,7 +16,7 @@ const behaviorCalc = new BehaviorMetricCalculator();
 const riskAgg = new RiskAggregator();
 
 chrome.webRequest.onBeforeRequest.addListener(
-	async (details) => {
+	(async (details) => {
 		const config = await getConfig();
 		if (!config.enabled) return;
 
@@ -26,7 +26,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 		const context: RequestContext = {
 			url: details.url,
 			timestamp: details.timeStamp,
-			referrer: details.documentUrl,
+			referrer: details.initiator,
 			userAgent: navigator.userAgent,
 			resourceType: details.type as RequestContext['resourceType'],
 		};
@@ -41,13 +41,15 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 			const { riskScore, confidence } = await riskAgg.aggregate([m1, m2, m3, m4]);
 
-			if (riskScore >= config.thresholds.critical || riskScore >= 0.90) {
+			const finalRiskLevel = riskScore >= config.thresholds.critical ? 'critical' : null;
+			if (finalRiskLevel === 'critical' || riskScore >= 0.95) {
+				console.log('BLOCKED:', domain);
 				notifyCriticalRisk(domain, riskScore).catch(console.error);
+				return { cancel: true };
 			}
 
-			if (riskScore >= config.thresholds.critical || riskScore >= 0.95) {
-				console.log('BLOCKED:', domain);
-				return { cancel: true };
+			if (riskScore >= config.thresholds.critical || riskScore >= 0.90) {
+				notifyCriticalRisk(domain, riskScore).catch(console.error);
 			}
 
 			const profile = await getDomainProfile(domain);
@@ -66,7 +68,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 		} catch (error) {
 			console.error(`[DNS Sentinel] Error processing ${domain}:`, error);
 		}
-	},
+	}) as (details: chrome.webRequest.WebRequestBodyDetails) => chrome.webRequest.BlockingResponse | void,
 	{ urls: ['<all_urls>'] },
 	['blocking'],
 );
