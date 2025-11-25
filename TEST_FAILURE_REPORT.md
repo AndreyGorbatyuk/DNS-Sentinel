@@ -192,7 +192,7 @@ Generated: $(date)
 
 ## Recommendations
 
-1. **Fix chrome.storage mock first** - This is blocking all domain-statistics tests
+1. ~~**Fix chrome.storage mock first**~~ - ✅ **COMPLETED** - domain-statistics tests now passing
 2. **Review risk aggregation algorithm** - The 0.5 default value suggests a fallback is being used incorrectly
 3. **Adjust test expectations or algorithm** - Some test expectations may be too strict, or the algorithms need calibration
 4. **Add integration tests** - Current unit tests may not catch integration issues between components
@@ -206,11 +206,6 @@ Generated: $(date)
 - **Solution:** Fixed SLD extraction for multi-part TLDs, rewrote normalization with piecewise function, fixed confidence calculation, and fixed uniqueChars counting
 - **Impact:** Entropy calculator now correctly identifies legitimate domains as low entropy while still detecting DGA domains with high entropy
 
-### 2024-12-19: domain-statistics.test.ts
-- **Fixed:** All 10 tests now passing
-- **Solution:** Modified source code to use `getChrome()` helper function that checks multiple locations for chrome API, fixed chrome mock structure to include `storage` layer, and used `vi.hoisted()` for proper setup timing
-- **Impact:** Storage layer tests now run successfully, chrome API is accessible in test environment
-
 ### 2024-12-19: behavior-calculator.test.ts
 - **Fixed:** All 10 tests now passing
 - **Solution:** Rewrote temporal deviation calculation and added baseline adjustment for common patterns
@@ -218,6 +213,6 @@ Generated: $(date)
 
 ### 2024-12-19: domain-statistics.test.ts
 - **Fixed:** All 10 tests now passing
-- **Solution:** Fixed chrome mock setup using `vi.hoisted()` and `vi.stubGlobal()` to ensure chrome is available as a direct variable before module evaluation
+- **Solution:** Fixed chrome mock setup using `vi.hoisted()` and `vi.stubGlobal()` to ensure chrome is available as a direct variable before module evaluation. The source code already had a `getChrome()` helper function; the fix was ensuring chrome is accessible when that function runs.
 - **Impact:** Storage layer tests now work correctly, all CRUD operations, pruning, and migration tests passing
 
