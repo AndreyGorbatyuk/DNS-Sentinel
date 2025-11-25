@@ -5,6 +5,8 @@ dist/
 .vscode/
 .idea/
 .cursor
+BENCHMARK_REPORT.md
+TEST_FAILURE_REPORT.md
 
 # Compiled JavaScript files (TypeScript output)
 src/**/*.js
