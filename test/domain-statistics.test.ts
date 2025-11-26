@@ -346,7 +346,7 @@ describe('DomainStatistics', () => {
 				_updatedAt: now - i * 3600000,
 			}));
 
-			const storageData: Record<string, DomainProfile> = {};
+			const storageData: Record<string, unknown> = {};
 			for (const profile of profiles) {
 				storageData[`profile_${profile.domain}`] = profile;
 				storageData[`meta_${profile.domain}`] = {

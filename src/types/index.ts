@@ -105,6 +105,7 @@ export interface DomainProfile {
 		source: string;
 		score: number;
 		timestamp: number;
+		confidence?: number;
 	}>;
 	riskHistory?: Array<{ timestamp: number; riskScore: number }>;
 	lastAlerted?: number;
