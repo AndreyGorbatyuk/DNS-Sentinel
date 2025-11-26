@@ -18,47 +18,53 @@ interface RiskDetails {
 }
 
 export class RiskAggregator {
-	async aggregate(metrics: MetricResult[]): Promise<{
-		riskScore: number;
-		confidence: number;
-		details: RiskDetails;
-	}> {
+	async aggregate(
+		metrics: MetricResult[],
+	): Promise<{ riskScore: number; confidence: number; details: RiskDetails }> {
 		const config: Configuration = await getConfig();
 
 		const contributions: Contribution[] = [];
 		let weightedSum = 0;
 		let totalWeight = 0;
-		const confidences: number[] = [];
-
+		let weightedConfidenceSum = 0;
 		const enabledMetrics: string[] = [];
 
 		for (const metric of metrics) {
-			const id = metric.id;
-			const group = config.groups[id as keyof typeof config.groups];
-
+			const groupKey = this.mapMetricToGroup(metric.id);
+			if (!groupKey) continue;
+			const group = config.groups[groupKey];
 			if (!group?.enabled) continue;
 
-			const weight = group.weight ?? 0;
-			if (weight <= 0) continue;
+			const resolvedWeight =
+				group.weight ?? config.weights[groupKey as keyof typeof config.weights] ?? 0;
+			if (resolvedWeight <= 0) continue;
 
-			const contribution = metric.value * weight;
+			const clampedValue = this.clamp(metric.value, 0, 1);
+			const clampedConfidence = this.clamp(metric.confidence, 0, 1);
+
+			const contribution = clampedValue * resolvedWeight;
 			weightedSum += contribution;
-			totalWeight += weight;
-			confidences.push(metric.confidence);
+			totalWeight += resolvedWeight;
+			weightedConfidenceSum += clampedConfidence * resolvedWeight;
 
 			contributions.push({
-				id,
-				value: metric.value,
-				weight,
+				id: metric.id,
+				value: clampedValue,
+				weight: resolvedWeight,
 				contribution,
-				confidence: metric.confidence,
+				confidence: clampedConfidence,
 			});
 
-			enabledMetrics.push(id);
+			enabledMetrics.push(metric.id);
 		}
 
-		const riskScore = totalWeight > 0 ? weightedSum / totalWeight : 0.5;
-		const confidence = confidences.length > 0 ? this.harmonicMean(confidences) : 0.0;
+		const clampedScore =
+			totalWeight > 0 ? this.clamp(weightedSum / totalWeight, 0, 1) : 0.5;
+		const riskScore = this.applySensitivity(clampedScore, config.sensitivity);
+		const confidence =
+			totalWeight > 0
+				? this.clamp(weightedConfidenceSum / totalWeight, 0, 1)
+				: 0.0;
 
 		const details: RiskDetails = {
 			riskScore,
@@ -75,9 +81,40 @@ export class RiskAggregator {
 		};
 	}
 
-	private harmonicMean(values: number[]): number {
-		if (values.length === 0) return 0;
-		const sumOfInverses = values.reduce((sum, c) => sum + 1 / Math.max(c, 0.01), 0);
-		return values.length / sumOfInverses;
+	private clamp(value: number, min: number, max: number): number {
+		return Math.min(max, Math.max(min, value));
+	}
+
+	private applySensitivity(score: number, sensitivity: Configuration['sensitivity']): number {
+		switch (sensitivity) {
+			case 'low':
+				return this.clamp(score * 0.8, 0, 1);
+			case 'high':
+				return this.clamp(score * 1.15, 0, 1);
+			case 'paranoid':
+				return this.clamp(score * 1.3, 0, 1);
+			default:
+				return score;
+		}
+	}
+
+	private mapMetricToGroup(metricId: string): keyof Configuration['groups'] | null {
+		const normalized = metricId.trim().toUpperCase();
+		switch (normalized) {
+			case 'M1':
+			case 'RATE':
+				return 'rate';
+			case 'M2':
+			case 'ENTROPY':
+				return 'entropy';
+			case 'M3':
+			case 'REPUTATION':
+				return 'reputation';
+			case 'M4':
+			case 'BEHAVIOR':
+				return 'behavior';
+			default:
+				return null;
+		}
 	}
 }

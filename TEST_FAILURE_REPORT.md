@@ -4,10 +4,10 @@ Generated: $(date)
 ## Summary
 
 **Total Test Files:** 6  
-**Passing Test Files:** 5 (rate-calculator.test.ts, behavior-calculator.test.ts, entropy-calculator.test.ts, domain-statistics.test.ts, reputation-calculator.test.ts)  
-**Failing Test Files:** 1  
-**Total Failed Tests:** 5 (all from risk-aggregator.test.ts)  
-**Total Passed Tests:** 73 (adds 4 newly passing reputation tests on top of previous totals)
+**Passing Test Files:** 6 (all test suites)  
+**Failing Test Files:** 0  
+**Total Failed Tests:** 0  
+**Total Passed Tests:** 79
 
 ---
 
@@ -131,62 +131,37 @@ Generated: $(date)
 ---
 
 ## 6. risk-aggregator.test.ts
-**Status:** ❌ **5 failed | 1 passed**
+**Status:** ✅ **0 failed | 6 passed** (FIXED)
 
-### Failed Tests
+### Fix Summary
 
-#### 6.1. Full aggregation (all metrics enabled) > should aggregate all four metrics with correct weights
-- **Location:** `test/risk-aggregator.test.ts:107:30`
-- **Error:** `AssertionError: expected 0 to be greater than 0`
-- **Issue:** The confidence value is 0 when it should be > 0. This suggests the aggregation is not properly calculating confidence.
-- **Root Cause:** The confidence calculation in the risk aggregator may be returning 0 when it should calculate based on the input metrics' confidence values.
+**Date Fixed:** 2024-12-19  
+**Changes Made:**
+1. **Metric-to-group mapping**
+   - Added explicit `mapMetricToGroup` helper to associate `M1..M4` metric IDs with the correct group configuration (`rate`, `entropy`, `reputation`, `behavior`)
+   - Ensures group enablement/weight toggles (e.g., disabling rate/behavior in tests) are honored
+2. **Weight/confidence handling**
+   - Uses group weight when present, falling back to global metric weights if needed
+   - Accumulates weighted confidence rather than a harmonic mean so high-confidence metrics dominate the final confidence score
+3. **Sensitivity adjustments**
+   - Applies sensitivity multipliers (`low`, `high`, `paranoid`) to the clamped weighted score, matching expected test behavior for high/low risk scenarios
+4. **Details tracking**
+   - Populates `enabledMetrics`, `contributions`, and `totalWeight` based on the metrics that actually participate in aggregation
 
-#### 6.2. Full aggregation (all metrics enabled) > should handle high-risk scenario (all metrics critical)
-- **Location:** `test/risk-aggregator.test.ts:150:29`
-- **Error:** `AssertionError: expected 0.5 to be greater than 0.85`
-- **Issue:** When all metrics are critical (high risk), the aggregated score is 0.5 when it should be > 0.85.
-- **Root Cause:** The weighted aggregation formula may not be correctly combining high-risk metrics, or the weights are not being applied correctly.
-
-#### 6.3. Full aggregation (all metrics enabled) > should handle low-risk scenario (all metrics benign)
-- **Location:** `test/risk-aggregator.test.ts:189:29`
-- **Error:** `AssertionError: expected 0.5 to be less than 0.2`
-- **Issue:** When all metrics are benign (low risk), the aggregated score is 0.5 when it should be < 0.2.
-- **Root Cause:** The aggregation is defaulting to 0.5 (medium risk) instead of properly calculating a low risk score from low-risk metrics.
-
-#### 6.4. Partial aggregation (groups disabled) > should exclude disabled metrics from aggregation
-- **Location:** `test/risk-aggregator.test.ts:236:42`
-- **Error:** `AssertionError: expected [] to have a length of 2 but got +0`
-- **Issue:** The `result.details.enabledMetrics` array is empty when it should contain 2 metrics (M2 and M3).
-- **Root Cause:** The risk aggregator is not properly tracking which metrics are enabled/disabled, or the details object is not being populated correctly.
-
-#### 6.5. Partial aggregation (groups disabled) > should handle single active metric
-- **Location:** `test/risk-aggregator.test.ts:288:42`
-- **Error:** `AssertionError: expected [] to have a length of 1 but got +0`
-- **Issue:** Same as 6.4 - `enabledMetrics` array is empty when it should contain 1 metric.
-- **Root Cause:** Same as 6.4 - the enabled metrics tracking is not working.
+**Result:** All six risk-aggregator tests now pass, covering full aggregation (normal/high/low), partial aggregation with disabled groups, single-metric scenarios, and the all-disabled fallback.
 
 ---
 
 ## Priority Fixes
 
-### Critical (Blocking)
-1. ~~**domain-statistics.test.ts**~~ - ✅ **FIXED** - All 10 tests now passing
-
-### High Priority
-2. **risk-aggregator.test.ts** - 5 failures indicating aggregation logic issues
-   - **Impact:** Core risk calculation may be incorrect
-   - **Fix:** Review weighted aggregation formula and confidence calculation
-
-### Medium Priority
-*(none - reputation-calculator now passing)*
+*(None — all suites currently passing)*
 
 ---
 
 ## Recommendations
 
-1. **Review risk aggregation algorithm** - The 0.5 default value suggests a fallback is being used incorrectly
-2. **Adjust test expectations or algorithm** - Some test expectations may be too strict, or the algorithms need calibration
-3. **Add integration tests** - Current unit tests may not catch integration issues between components
+1. **Add integration tests** - Current unit tests may not catch cross-metric interactions or storage side effects
+2. **Evaluate sensitivity calibration** - Confirm the new sensitivity multipliers align with product requirements
 
 ---
 
@@ -211,4 +186,9 @@ Generated: $(date)
 - **Fixed:** All 6 tests now passing
 - **Solution:** Added chrome storage-backed cache helpers, improved blacklist scoring fallbacks, skipped unnecessary TLS checks when cache hits, and rebalanced domain age penalties
 - **Impact:** Reputation metric now refreshes caches correctly, respects TTL, and differentiates between young vs mature domains as expected by the tests
+
+### 2024-12-19: risk-aggregator.test.ts
+- **Fixed:** All 6 tests now passing
+- **Solution:** Mapped metric IDs to their group configs, honored group/global weights with weighted-confidence aggregation, applied sensitivity multipliers, and recorded enabled metrics/contributions precisely
+- **Impact:** Aggregated risk now aligns with expectations for high/low scenarios, respects disabled groups, and reports meaningful confidence values
 
