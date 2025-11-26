@@ -71,7 +71,6 @@ pnpm dev
 1. **Install the extension** - Follow installation steps above
 2. **Browse normally** - DNS Sentinel monitors all DNS requests automatically
 3. **Review alerts** - Click extension icon to see threat dashboard
-4. **Provide feedback** - Mark false positives to improve accuracy
 
 ---
 
@@ -173,7 +172,7 @@ DNS Sentinel is built with a modular architecture consisting of five core compon
       └────────────┘      └─────────────────┘
 ```
 
-**See [docs/ARCHITECTURE.md](ARCHITECTURE.md) for detailed component descriptions.**
+**See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed component descriptions.**
 
 ---
 
@@ -191,7 +190,7 @@ Access via extension popup → Settings:
 
 ### Developer Configuration
 
-Configuration is managed through the `ConfigurationStore` class in `src/background/storage/configuration-store.ts`. Default settings are defined in the storage layer.
+Configuration is managed through the `ConfigurationStore` class. Default settings are defined in the storage layer.
 
 ---
 
@@ -291,97 +290,6 @@ pnpm build
 
 ---
 
-## 🔬 Research & Innovation
-
-DNS Sentinel is based on academic research in DNS traffic analysis and phishing detection. The mathematical model is designed to be extensible for future enhancements:
-
-### Current Implementation
-- ✅ Four-metric integrated risk model
-- ✅ Adaptive weight calibration
-- ✅ Real-time processing
-- ✅ Local privacy-preserving analysis
-- ✅ Request blocking for critical risks
-- ✅ Real API integrations (PhishTank, Google Safe Browsing, OpenPhish)
-
-### Future Research Directions
-- 🔬 **Machine Learning Integration** - Automated weight optimization
-- 🔬 **Visual Similarity Metrics** - Advanced homoglyph detection
-- 🔬 **Federated Learning** - Privacy-preserving threat intelligence sharing
-- 🔬 **Multilingual Support** - Non-Latin script analysis
-
----
-
-## 📚 Documentation
-
-Comprehensive documentation is available in the `docs/` directory:
-
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture and design
-- **[QUICK_START.md](QUICK_START.md)** - Developer quick start guide
-- **[FILE_INDEX.md](FILE_INDEX.md)** - Complete documentation index
-- **[docs/01-concepts/](01-concepts/)** - Conceptual model and metrics
-- **[docs/02-mathematical-model/](02-mathematical-model/)** - Formulas and proofs
-- **[docs/03-architecture/](03-architecture/)** - Component specifications
-- **[docs/04-algorithms/](04-algorithms/)** - Implementation algorithms
-- **[docs/05-implementation/](05-implementation/)** - Technical details
-- **[docs/api/](api/)** - API documentation
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please open an issue or submit a pull request on GitHub.
-
-### Areas for Contribution
-
-- 🐛 Bug fixes and error handling improvements
-- 📈 Performance optimizations
-- 🎨 UI/UX enhancements
-- 🧪 Additional test coverage
-- 📚 Documentation improvements
-- 🌐 Internationalization (i18n)
-
----
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **PhishTank** for maintaining open phishing intelligence
-- **Google Safe Browsing** for threat detection APIs
-- **OpenPhish** for additional threat feeds
-- **Chrome Extensions Team** for excellent developer documentation
-
----
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/your-repo/dns-sentinel/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-repo/dns-sentinel/discussions)
-- **Email**: support@dnssentinel.dev
-
----
-
-## 🔐 Security
-
-Found a security vulnerability? Please report it responsibly:
-
-- **Email**: security@dnssentinel.dev
-- **PGP Key**: Available at [keybase.io/dnssentinel](https://keybase.io/dnssentinel)
-
-**Please do not open public issues for security vulnerabilities.**
-
----
-
-## 📈 Project Status
-
-- **Version**: 1.0.0 (Development)
-- **Chrome Web Store**: Coming soon
-- **Browser Support**: Chrome 88+, Edge 88+
-
 ## 📦 Deployment
 
 ### For Chrome Web Store
@@ -415,12 +323,61 @@ Found a security vulnerability? Please report it responsibly:
    - Users load it via "Load unpacked" in developer mode
    - Or create a ZIP and distribute
 
+### Pre-deployment Checklist
+
+- [x] Fix all linting errors: `pnpm lint`
+- [x] Apply code formatting: `pnpm format`
+- [x] Run all tests: `pnpm test`
+- [x] Verify build succeeds: `pnpm build`
+- [x] Run benchmarks: `pnpm test --bench`
+- [x] Update version in `src/manifest.json`
+- [x] Test extension in Chrome (load unpacked from `dist/`)
+
 ---
 
-## ⭐ Star History
+## 📚 Documentation
 
-[![Star History Chart](https://api.star-history.com/svg?repos=your-repo/dns-sentinel&type=Date)](https://star-history.com/#your-repo/dns-sentinel&Date)
+Comprehensive documentation is available in the `docs/` directory:
+
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture and design
+- **[docs/QUICK_START.md](docs/QUICK_START.md)** - Developer quick start guide
+- **[docs/FILE_INDEX.md](docs/FILE_INDEX.md)** - Complete documentation index
+- **[docs/01-concepts/](docs/01-concepts/)** - Conceptual model and metrics
+- **[docs/02-mathematical-model/](docs/02-mathematical-model/)** - Formulas and proofs
+- **[docs/03-architecture/](docs/03-architecture/)** - Component specifications
+- **[docs/04-algorithms/](docs/04-algorithms/)** - Implementation algorithms
+- **[docs/05-implementation/](docs/05-implementation/)** - Technical details
+- **[docs/api/](docs/api/)** - API documentation
 
 ---
 
-**Made with ❤️ for a safer web**
+## 🤝 Contributing
+
+We welcome contributions! Please open an issue or submit a pull request on GitHub.
+
+### Areas for Contribution
+
+- 🐛 Bug fixes and error handling improvements
+- 📈 Performance optimizations
+- 🎨 UI/UX enhancements
+- 🧪 Additional test coverage
+- 📚 Documentation improvements
+- 🌐 Internationalization (i18n)
+
+---
+
+
+## 🙏 Acknowledgments
+
+- **PhishTank** for maintaining open phishing intelligence
+- **Google Safe Browsing** for threat detection APIs
+- **OpenPhish** for additional threat feeds
+- **Chrome Extensions Team** for excellent developer documentation
+
+---
+
+## 📈 Project Status
+
+- **Version**: 1.0.0 (Development)
+- **Chrome Web Store**: Coming soon
+- **Browser Support**: Chrome 88+, Edge 88+

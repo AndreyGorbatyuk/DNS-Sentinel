@@ -8,7 +8,8 @@
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** 16+ and npm 8+
+- **Node.js** 18+ (for ES2022 support)
+- **pnpm** 9+ (package manager)
 - **Chrome Browser** 88+ (or Edge 88+)
 - **Git**
 - Code editor (VS Code recommended)
@@ -24,51 +25,37 @@ git clone https://github.com/your-repo/dns-sentinel.git
 cd dns-sentinel
 ```
 
-### Step 2: Install Dependencies
+### Step 2: Install pnpm
 
 ```bash
-npm install
+# Install pnpm globally if not already installed
+npm install -g pnpm@9
+
+# Verify installation
+pnpm --version  # Should be 9.x
+```
+
+### Step 3: Install Dependencies
+
+```bash
+pnpm install
 ```
 
 This will install:
-- Build tools (webpack, babel)
-- Testing framework (jest)
-- Code quality tools (eslint, prettier)
-- Development utilities
-
-### Step 3: Configure API Keys
-
-Create a `.env` file in the root directory:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and add your API keys:
-
-```env
-# External Threat Intelligence APIs
-PHISHTANK_API_KEY=your_phishtank_key_here
-GOOGLE_SAFE_BROWSING_API_KEY=your_google_key_here
-OPENPHISH_API_KEY=your_openphish_key_here
-
-# Optional: WHOIS API (if not using free service)
-WHOIS_API_KEY=your_whois_key_here
-```
-
-**Get API Keys**:
-- PhishTank: https://www.phishtank.com/api_info.php
-- Google Safe Browsing: https://developers.google.com/safe-browsing/v4/get-started
-- OpenPhish: https://openphish.com/api.html
+- Build tools (Vite, vite-plugin-web-extension)
+- Testing framework (Vitest)
+- Code quality tools (Biome)
+- TypeScript 5.6
+- Chrome Extension types
 
 ### Step 4: Build the Extension
 
 ```bash
-# Development build (with source maps)
-npm run build
+# Development build with hot reload
+pnpm dev
 
-# Or watch mode for auto-rebuild
-npm run dev
+# Or production build
+pnpm build
 ```
 
 Build output will be in the `dist/` directory.
@@ -85,17 +72,14 @@ Build output will be in the `dist/` directory.
 4. Select the `dist/` directory from your project
 5. DNS Sentinel icon should appear in the extensions toolbar
 
-### Method 2: Load from CRX (Testing)
+### Method 2: Production Build
 
 ```bash
 # Build production version
-npm run build:prod
-
-# Pack extension
-npm run pack
+pnpm build
 ```
 
-This creates a `.crx` file you can drag-and-drop into `chrome://extensions/`.
+The `dist/` folder contains the production-ready extension. You can create a ZIP file for distribution or Chrome Web Store submission.
 
 ---
 
@@ -110,21 +94,13 @@ This creates a `.crx` file you can drag-and-drop into `chrome://extensions/`.
 
 ### Test 2: Phishing Detection
 
-Test against known phishing domains (from PhishTank):
-
-```bash
-# Run test suite
-npm run test:phishing
-```
-
-Or manually visit a test phishing domain (DO NOT enter any credentials):
-- Use PhishTank's test page: https://www.phishtank.com/phish_search.php
+The extension will automatically detect and block phishing domains. You can test by visiting known phishing domains (DO NOT enter any credentials).
 
 ### Test 3: Performance Check
 
 ```bash
 # Run performance benchmarks
-npm run test:perf
+pnpm test --bench
 ```
 
 Expected results:
@@ -139,59 +115,26 @@ Expected results:
 ```
 dns-sentinel/
 │
-├── src/                          # Source code
-│   ├── background/               # Background service worker
-│   │   ├── service-worker.js     # Main entry point
-│   │   └── request-interceptor.js
-│   │
-│   ├── storage/                  # Storage layer
-│   │   ├── domain-statistics.js  # Domain Statistics (DS)
-│   │   ├── config-store.js       # Configuration Store (CF)
-│   │   └── history-log.js        # History Log (HL)
-│   │
-│   ├── analysis/                 # Analysis engine
-│   │   ├── rate-calculator.js    # Request rate metrics
-│   │   ├── entropy-calculator.js # Entropy/structural metrics
-│   │   ├── reputation-calculator.js # Reputation/threat intel
-│   │   ├── behavior-calculator.js   # Behavioral patterns
-│   │   └── risk-aggregator.js       # Risk aggregation
-│   │
-│   ├── alerts/                   # Alert system
-│   │   ├── alert-dispatcher.js   # Decision logic
-│   │   └── notification-manager.js # UI notifications
-│   │
-│   ├── ui/                       # User interface
-│   │   ├── popup/                # Popup dashboard
-│   │   │   ├── popup.html
-│   │   │   ├── popup.js
-│   │   │   └── popup.css
-│   │   ├── settings/             # Settings panel
-│   │   └── notifications/        # Notification components
-│   │
-│   ├── utils/                    # Shared utilities
-│   │   ├── logger.js
-│   │   ├── crypto.js
-│   │   └── helpers.js
-│   │
-│   └── config/                   # Configuration
-│       ├── default-config.js     # Default settings
-│       └── constants.js          # Constants
-│
-├── tests/                        # Test suites
-│   ├── unit/                     # Unit tests
-│   ├── integration/              # Integration tests
-│   └── fixtures/                 # Test data
-│
-├── docs/                         # Documentation
-│   ├── 01-concepts/             # Conceptual model
-│   ├── 02-mathematical-model/   # Formulas
-│   ├── 03-architecture/         # Architecture details
-│   └── 04-algorithms/           # Algorithms
-│
-├── manifest.json                 # Chrome extension manifest
-├── webpack.config.js             # Build configuration
-├── package.json                  # Dependencies
-└── .env                          # API keys (not committed)
+├── src/                          # Production source code
+│   ├── background/               # Service worker (main logic)
+│   │   ├── index.ts             # Entry point - webRequest interceptor
+│   │   ├── aggregators/         # Risk aggregation logic
+│   │   ├── analysis/            # 4 metric calculators (M1-M4)
+│   │   ├── storage/             # Configuration & domain statistics
+│   │   └── utils/               # Pure utility functions
+│   ├── popup.html               # Extension popup UI
+│   ├── popup.ts                 # Popup logic (vanilla JS)
+│   ├── manifest.json            # Chrome Extension Manifest V3
+│   ├── types/index.ts           # Single source of truth for types
+│   └── icons/                   # Extension icons (PNG: 16x16, 48x48, 128x128)
+├── test/                         # Unit tests (flat structure)
+├── benchmark/                    # Performance benchmarks
+├── docs/                         # Comprehensive documentation
+├── package.json                  # Dependencies & scripts
+├── vite.config.ts               # Vite + web extension plugin
+├── vitest.config.ts             # Test configuration
+├── tsconfig.json                # TypeScript 5.6 config
+└── biome.json                   # Linter/formatter config
 ```
 
 ---
@@ -201,28 +144,27 @@ dns-sentinel/
 ### Watch Mode (Recommended)
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
-This starts webpack in watch mode:
+This starts Vite in watch mode:
 - Auto-rebuilds on file changes
 - Generates source maps for debugging
 - Fast incremental compilation
+- Hot reload support
 
 **After making changes**:
 1. Save your files
-2. Go to `chrome://extensions/`
-3. Click the **reload** icon on DNS Sentinel card
-4. Test your changes
+2. Vite automatically rebuilds
+3. Go to `chrome://extensions/`
+4. Click the **reload** icon on DNS Sentinel card
+5. Test your changes
 
 ### Manual Build
 
 ```bash
-# Development build
-npm run build
-
-# Production build (minified, optimized)
-npm run build:prod
+# Production build (TypeScript check + Vite build)
+pnpm build
 ```
 
 ---
@@ -232,23 +174,23 @@ npm run build:prod
 ### Run All Tests
 
 ```bash
-npm test
+pnpm test
 ```
 
 ### Run Specific Test Suites
 
 ```bash
-# Unit tests only
-npm run test:unit
-
-# Integration tests
-npm run test:integration
+# Run tests in watch mode
+pnpm test --watch
 
 # Performance benchmarks
-npm run test:perf
+pnpm test --bench
 
 # Coverage report
-npm run test:coverage
+pnpm test --coverage
+
+# Run specific test file
+pnpm test risk-aggregator
 ```
 
 ### Writing Tests
@@ -346,31 +288,17 @@ export const DEFAULT_CONFIG = {
 
 ```bash
 # Check for issues
-npm run lint
-
-# Auto-fix issues
-npm run lint:fix
+pnpm lint
 ```
 
 ### Format Code
 
 ```bash
 # Format all files
-npm run format
-
-# Check formatting
-npm run format:check
+pnpm format
 ```
 
-### Pre-commit Hooks
-
-Husky automatically runs linting and formatting before commits:
-
-```bash
-git add .
-git commit -m "Add feature"
-# Linting and formatting run automatically
-```
+Biome is used for both linting and formatting in this project.
 
 ---
 
