@@ -3,7 +3,16 @@
 	"name": "DNS Sentinel",
 	"version": "1.0.0",
 	"description": "Ultra-fast client-side anti-phishing Chrome extension",
-	"permissions": ["webRequest", "webRequestBlocking", "storage", "tabs", "alarms", "notifications", "tts", "<all_urls>"],
+	"permissions": [
+		"webRequest",
+		"webRequestBlocking",
+		"storage",
+		"tabs",
+		"alarms",
+		"notifications",
+		"tts",
+		"<all_urls>"
+	],
 	"background": {
 		"service_worker": "background/index.ts",
 		"type": "module"

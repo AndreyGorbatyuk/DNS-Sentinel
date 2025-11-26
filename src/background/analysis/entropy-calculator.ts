@@ -52,8 +52,9 @@ export class EntropyMetricCalculator {
 		const domainParts = domain.toLowerCase().split('.');
 		const lastPart = domainParts[domainParts.length - 1] || '';
 		const secondLastPart = domainParts[domainParts.length - 2] || '';
-		const isMultiPartTLD = lastPart.length <= 3 && secondLastPart.length <= 3 && domainParts.length >= 3;
-		const originalSLD = isMultiPartTLD 
+		const isMultiPartTLD =
+			lastPart.length <= 3 && secondLastPart.length <= 3 && domainParts.length >= 3;
+		const originalSLD = isMultiPartTLD
 			? domainParts[domainParts.length - 3] || ''
 			: domainParts[domainParts.length - 2] || domainParts[0] || '';
 		const originalLength = originalSLD.length || cleanDomain.length;
@@ -84,9 +85,9 @@ export class EntropyMetricCalculator {
 		const lastPart = parts[parts.length - 1];
 		const secondLastPart = parts[parts.length - 2];
 		const isMultiPartTLD = lastPart.length <= 3 && secondLastPart.length <= 3 && parts.length >= 3;
-		
-		const sld = isMultiPartTLD 
-			? parts[parts.length - 3]  // For .co.uk, .com.au, etc.
+
+		const sld = isMultiPartTLD
+			? parts[parts.length - 3] // For .co.uk, .com.au, etc.
 			: parts[parts.length - 2]; // For .com, .org, etc.
 		return sld.replace(/[^a-z]/g, '');
 	}
@@ -124,12 +125,14 @@ export class EntropyMetricCalculator {
 		if (ratio < 0.89) {
 			// Legitimate domains: use linear mapping to keep values low
 			return ratio * 0.32; // Map [0, 0.89] to [0, 0.2848]
-		} else if (ratio < 0.94) {
+		}
+
+		if (ratio < 0.94) {
 			// Transition zone: use linear interpolation with lower slope
 			return 0.2848 + (ratio - 0.89) * 0.5; // Map [0.89, 0.94] to [0.2848, 0.3098]
-		} else {
-			// High entropy DGA: use sigmoid to push values high
-			return 0.344 + 0.656 / (1 + Math.exp(-20 * (ratio - 0.97))); // Map [0.94, 1.0] to [0.344, 1.0]
 		}
+
+		// High entropy DGA: use sigmoid to push values high
+		return 0.344 + 0.656 / (1 + Math.exp(-20 * (ratio - 0.97))); // Map [0.94, 1.0] to [0.344, 1.0]
 	}
 }

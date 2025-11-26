@@ -96,16 +96,16 @@ export class BehaviorMetricCalculator {
 		// Adjust baseline: for very common patterns (low deviations and no other risk factors),
 		// shift rawScore negative to ensure sigmoid produces values < 0.5 for normal patterns
 		// Don't apply if zScore indicates unusual timing (either very high or very low)
-		const isVeryCommonPattern = 
-			timeDeviation < 0.01 && 
-			dayDeviation < 0.01 && 
-			!referrerMismatch && 
+		const isVeryCommonPattern =
+			timeDeviation < 0.01 &&
+			dayDeviation < 0.01 &&
+			!referrerMismatch &&
 			pathScore === 0 &&
 			Math.abs(zScore) <= 1; // Only apply if zScore is near normal (within 1 std dev)
-		
+
 		const baselineAdjustment = isVeryCommonPattern ? -0.15 : 0;
 		const adjustedRawScore = rawScore + baselineAdjustment;
-		
+
 		const normalized = sigmoid(adjustedRawScore * 8);
 		const confidence = Math.min(profile.requestCount / 50, 1.0);
 
@@ -201,23 +201,23 @@ export class BehaviorMetricCalculator {
 		}
 
 		const count = distribution[index] || 0;
-		
+
 		// Calculate the probability/frequency of this time slot
 		const probability = count / total;
-		
+
 		// If this time slot has zero frequency, it's highly unusual
 		if (count === 0) {
 			return 0.9; // High deviation for never-seen time slots
 		}
-		
+
 		// Calculate deviation based on how common this time slot is
 		// For very common patterns (high probability), deviation should be very low
 		// For rare patterns (low probability), deviation should be high
 		const max = distribution.reduce((m, value) => (value > m ? value : m), 0);
 		const relativeToPeak = max > 0 ? count / max : 0;
-		
+
 		let deviation: number;
-		
+
 		// If this time slot is the peak or very close to it, it's a common pattern
 		// Use extremely low deviations for common patterns to ensure final risk score is low
 		if (relativeToPeak >= 0.95) {

@@ -24,12 +24,18 @@ const { mockChromeStorageLocal, mockChromeStorageSync, mockChromeStorage } = vi.
 		},
 	};
 
+	const setChromeOnTarget = (target: unknown) => {
+		if (target && (typeof target === 'object' || typeof target === 'function')) {
+			(target as { chrome?: typeof chrome }).chrome = chrome;
+		}
+	};
+
 	// Set chrome on globalThis immediately in hoisted context
 	if (typeof globalThis !== 'undefined') {
-		(globalThis as any).chrome = chrome;
+		setChromeOnTarget(globalThis);
 	}
 	if (typeof global !== 'undefined') {
-		(global as any).chrome = chrome;
+		setChromeOnTarget(global);
 	}
 
 	return { mockChromeStorageLocal: local, mockChromeStorageSync: sync, mockChromeStorage: chrome };
@@ -40,34 +46,33 @@ vi.stubGlobal('chrome', mockChromeStorage);
 
 // Also set it directly on globalThis and global as fallback
 if (typeof globalThis !== 'undefined') {
-	(globalThis as any).chrome = mockChromeStorage;
+	(globalThis as { chrome?: typeof mockChromeStorage }).chrome = mockChromeStorage;
 }
 if (typeof global !== 'undefined') {
-	(global as any).chrome = mockChromeStorage;
+	(global as { chrome?: typeof mockChromeStorage }).chrome = mockChromeStorage;
 }
 
-// Use Object.defineProperty to ensure it's accessible
-try {
-	if (typeof globalThis !== 'undefined') {
-		Object.defineProperty(globalThis, 'chrome', {
-			value: mockChromeStorage,
-			writable: true,
-			enumerable: true,
-			configurable: true,
-		});
+const defineChromeProperty = (target: unknown) => {
+	if (target && typeof target === 'object') {
+		try {
+			Object.defineProperty(target, 'chrome', {
+				value: mockChromeStorage,
+				writable: true,
+				enumerable: true,
+				configurable: true,
+			});
+		} catch {
+			// Ignore if descriptor cannot be redefined
+		}
 	}
-	if (typeof global !== 'undefined') {
-		Object.defineProperty(global, 'chrome', {
-			value: mockChromeStorage,
-			writable: true,
-			enumerable: true,
-			configurable: true,
-		});
-	}
-} catch (e) {
-	// Ignore if it fails
+};
+
+if (typeof globalThis !== 'undefined') {
+	defineChromeProperty(globalThis);
+}
+if (typeof global !== 'undefined') {
+	defineChromeProperty(global);
 }
 
 // Export mocks for use in tests
 export { mockChromeStorageLocal, mockChromeStorageSync, mockChromeStorage };
-

@@ -7,10 +7,29 @@
 
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DomainProfile, WelfordStats } from '../src/types/index.js';
-import {
-	mockChromeStorageLocal,
-	mockChromeStorageSync,
-} from './setup.js';
+import { mockChromeStorageLocal, mockChromeStorageSync } from './setup.js';
+
+type ChromeTestStorage = {
+	storage: {
+		local: typeof mockChromeStorageLocal;
+		sync: typeof mockChromeStorageSync;
+	};
+};
+
+const ensureChromeOnTarget = (target: unknown) => {
+	if (
+		target &&
+		(typeof target === 'object' || typeof target === 'function') &&
+		!(target as { chrome?: ChromeTestStorage }).chrome
+	) {
+		(target as { chrome?: ChromeTestStorage }).chrome = {
+			storage: {
+				local: mockChromeStorageLocal,
+				sync: mockChromeStorageSync,
+			},
+		};
+	}
+};
 
 // Mock configuration-store
 vi.mock('../src/background/storage/configuration-store.js', () => ({
@@ -29,21 +48,11 @@ import {
 describe('DomainStatistics', () => {
 	beforeEach(() => {
 		// Ensure chrome is available (in case module cache was cleared)
-		if (typeof globalThis !== 'undefined' && !(globalThis as any).chrome) {
-			(globalThis as any).chrome = {
-				storage: {
-					local: mockChromeStorageLocal,
-					sync: mockChromeStorageSync,
-				},
-			};
+		if (typeof globalThis !== 'undefined') {
+			ensureChromeOnTarget(globalThis);
 		}
-		if (typeof global !== 'undefined' && !(global as any).chrome) {
-			(global as any).chrome = {
-				storage: {
-					local: mockChromeStorageLocal,
-					sync: mockChromeStorageSync,
-				},
-			};
+		if (typeof global !== 'undefined') {
+			ensureChromeOnTarget(global);
 		}
 
 		// Reset all mocks and restore default implementations

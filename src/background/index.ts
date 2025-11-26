@@ -48,7 +48,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 				return { cancel: true };
 			}
 
-			if (riskScore >= config.thresholds.critical || riskScore >= 0.90) {
+			if (riskScore >= config.thresholds.critical || riskScore >= 0.9) {
 				notifyCriticalRisk(domain, riskScore).catch(console.error);
 			}
 
@@ -68,7 +68,9 @@ chrome.webRequest.onBeforeRequest.addListener(
 		} catch (error) {
 			console.error(`[DNS Sentinel] Error processing ${domain}:`, error);
 		}
-	}) as (details: chrome.webRequest.WebRequestBodyDetails) => chrome.webRequest.BlockingResponse | void,
+	}) as (
+		details: chrome.webRequest.WebRequestBodyDetails,
+	) => chrome.webRequest.BlockingResponse | undefined,
 	{ urls: ['<all_urls>'] },
 	['blocking'],
 );

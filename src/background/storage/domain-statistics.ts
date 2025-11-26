@@ -13,11 +13,22 @@ const STORAGE_KEYS = {
 const MAX_PROFILES = 10_000;
 const PROFILE_TTL_DAYS = 90;
 
+type ChromeHolder = {
+	chrome?: typeof chrome;
+};
+
 // Helper to get chrome API (works in both browser and test environments)
 function getChrome() {
 	if (typeof chrome !== 'undefined') return chrome;
-	if (typeof globalThis !== 'undefined' && (globalThis as any).chrome) return (globalThis as any).chrome;
-	if (typeof global !== 'undefined' && (global as any).chrome) return (global as any).chrome;
+
+	const globalChrome = (globalThis as ChromeHolder | undefined)?.chrome;
+	if (globalChrome) return globalChrome;
+
+	if (typeof global !== 'undefined') {
+		const nodeChrome = (global as ChromeHolder | undefined)?.chrome;
+		if (nodeChrome) return nodeChrome;
+	}
+
 	throw new Error('chrome API is not available');
 }
 

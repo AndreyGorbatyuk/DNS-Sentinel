@@ -1,8 +1,4 @@
-import type {
-	Configuration,
-	DomainProfile,
-	MetricResult,
-} from '../../types/index.js';
+import type { Configuration, DomainProfile, MetricResult } from '../../types/index.js';
 import { getConfig } from '../storage/configuration-store.js';
 import * as DomainStats from '../storage/domain-statistics.js';
 
@@ -12,16 +8,44 @@ type CachedSourceEntry = {
 	cachedAt: number;
 };
 
-function getChromeStorageLocal() {
+type ChromeStorageLocal = typeof chrome.storage.local;
+
+type ChromeLike = {
+	storage?: {
+		local?: ChromeStorageLocal;
+	};
+	local?: ChromeStorageLocal;
+};
+
+const extractLocalStorage = (candidate: ChromeLike | undefined) =>
+	candidate?.storage?.local ?? candidate?.local;
+
+function getChromeStorageLocal(): ChromeStorageLocal | undefined {
 	if (typeof chrome !== 'undefined') {
-		if (chrome?.storage?.local) return chrome.storage.local;
-		if ((chrome as any).local) return (chrome as any).local;
+		const localFromChrome = extractLocalStorage(chrome as ChromeLike);
+		if (localFromChrome) return localFromChrome;
 	}
-	if (typeof globalThis !== 'undefined' && (globalThis as any).chrome) {
-		const glChrome = (globalThis as any).chrome;
-		if (glChrome.storage?.local) return glChrome.storage.local;
-		if (glChrome.local) return glChrome.local;
+
+	if (typeof globalThis !== 'undefined') {
+		const globalChrome = (
+			globalThis as ChromeLike & {
+				chrome?: ChromeLike;
+			}
+		).chrome;
+		const localFromGlobal = extractLocalStorage(globalChrome);
+		if (localFromGlobal) return localFromGlobal;
 	}
+
+	if (typeof global !== 'undefined') {
+		const nodeChrome = (
+			global as ChromeLike & {
+				chrome?: ChromeLike;
+			}
+		).chrome;
+		const localFromNode = extractLocalStorage(nodeChrome);
+		if (localFromNode) return localFromNode;
+	}
+
 	return undefined;
 }
 
@@ -41,11 +65,7 @@ async function readCachedEntry(domain: string, sourceName: string) {
 	}
 }
 
-async function writeCachedEntry(
-	domain: string,
-	sourceName: string,
-	entry: CachedSourceEntry,
-) {
+async function writeCachedEntry(domain: string, sourceName: string, entry: CachedSourceEntry) {
 	const storage = getChromeStorageLocal();
 	if (!storage?.set) return;
 	const key = buildCacheKey(domain, sourceName);
@@ -65,10 +85,14 @@ export class ReputationMetricCalculator {
 	async calculate(domain: string, profile?: DomainProfile): Promise<MetricResult> {
 		const config: Configuration = await getConfig();
 		if (!config.groups.reputation.enabled) {
-			return { id: 'M3', value: 0.0, confidence: 0.0, details: { reason: 'reputation calculation disabled' } };
+			return {
+				id: 'M3',
+				value: 0.0,
+				confidence: 0.0,
+				details: { reason: 'reputation calculation disabled' },
+			};
 		}
-		const domainProfile =
-			profile ||
+		const domainProfile = profile ||
 			(await DomainStats.getDomainProfile(domain)) || {
 				domain,
 				firstSeen: Date.now(),
@@ -84,8 +108,15 @@ export class ReputationMetricCalculator {
 				},
 			};
 		const url = `https://${domain}`;
-		const sources: Array<{ name: string; score: number; confidence: number; cachedAt?: number }> = [];
-		let weightedSum = 0, totalWeight = 0, totalConfidence = 0;
+		const sources: Array<{
+			name: string;
+			score: number;
+			confidence: number;
+			cachedAt?: number;
+		}> = [];
+		let weightedSum = 0;
+		let totalWeight = 0;
+		let totalConfidence = 0;
 		let usedCacheOnly = true;
 
 		for (const src of config.groups.reputation.sources) {
@@ -111,8 +142,21 @@ export class ReputationMetricCalculator {
 				usedCacheOnly = false;
 				try {
 					if (src.name === 'Google Safe Browsing') {
-						const body = JSON.stringify({ client: { clientId: 'dns-sentinel', clientVersion: '1.0' }, threatInfo: { threatTypes: ['MALWARE', 'SOCIAL_ENGINEERING'], platformTypes: ['ANY_PLATFORM'], threatEntryTypes: ['URL'], threatEntries: [{ url }] } });
-						const res = await fetch('https://safebrowsing.googleapis.com/v4/threatMatches:find', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, signal: AbortSignal.timeout(3000) });
+						const body = JSON.stringify({
+							client: { clientId: 'dns-sentinel', clientVersion: '1.0' },
+							threatInfo: {
+								threatTypes: ['MALWARE', 'SOCIAL_ENGINEERING'],
+								platformTypes: ['ANY_PLATFORM'],
+								threatEntryTypes: ['URL'],
+								threatEntries: [{ url }],
+							},
+						});
+						const res = await fetch('https://safebrowsing.googleapis.com/v4/threatMatches:find', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body,
+							signal: AbortSignal.timeout(3000),
+						});
 						if (res.ok) {
 							const payload = await res.json();
 							score = payload?.matches?.length > 0 || payload?.malicious ? 1.0 : 0.0;
@@ -122,7 +166,12 @@ export class ReputationMetricCalculator {
 						}
 					} else if (src.name === 'PhishTank') {
 						const body = new URLSearchParams({ url, format: 'json' });
-						const res = await fetch('https://checkurl.phishtank.com/checkurl/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString(), signal: AbortSignal.timeout(3000) });
+						const res = await fetch('https://checkurl.phishtank.com/checkurl/', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+							body: body.toString(),
+							signal: AbortSignal.timeout(3000),
+						});
 						const data = res.ok ? await res.json() : null;
 						score =
 							data?.results?.in_database && data?.results?.valid
@@ -134,7 +183,9 @@ export class ReputationMetricCalculator {
 					} else if (src.name === 'OpenPhish') {
 						const now = Date.now();
 						if (now - this.openPhishLastFetch > 3600000 || this.openPhishCache.size === 0) {
-							const res = await fetch('https://openphish.com/feed.txt', { signal: AbortSignal.timeout(3000) });
+							const res = await fetch('https://openphish.com/feed.txt', {
+								signal: AbortSignal.timeout(3000),
+							});
 							if (res.ok && typeof res.text === 'function') {
 								this.openPhishCache = new Set(
 									(await res.text())
@@ -173,13 +224,20 @@ export class ReputationMetricCalculator {
 				}
 			}
 			score = score ?? 0.5;
-			sources.push({ name: src.name, score, confidence: sourceConfidence, cachedAt: cached?.timestamp });
+			sources.push({
+				name: src.name,
+				score,
+				confidence: sourceConfidence,
+				cachedAt: cached?.timestamp,
+			});
 			weightedSum += score * src.weight;
 			totalWeight += src.weight;
 			totalConfidence += sourceConfidence;
 		}
 
-		const ageDays = domainProfile.firstSeen ? Math.floor((Date.now() - domainProfile.firstSeen) / 86400000) : 0;
+		const ageDays = domainProfile.firstSeen
+			? Math.floor((Date.now() - domainProfile.firstSeen) / 86400000)
+			: 0;
 		const ageScore = ageDays < this.MIN_DOMAIN_AGE_DAYS ? 0.7 : 0.0;
 		sources.push({ name: 'Domain Age', score: ageScore, confidence: ageDays > 0 ? 1.0 : 0.1 });
 		weightedSum += ageScore * 0.15;
@@ -189,7 +247,11 @@ export class ReputationMetricCalculator {
 		if (!usedCacheOnly) {
 			certValid = false;
 			try {
-				await fetch(`https://${domain}`, { method: 'HEAD', mode: 'no-cors', signal: AbortSignal.timeout(3000) });
+				await fetch(`https://${domain}`, {
+					method: 'HEAD',
+					mode: 'no-cors',
+					signal: AbortSignal.timeout(3000),
+				});
 				certValid = true;
 			} catch {}
 		}

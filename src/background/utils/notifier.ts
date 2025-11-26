@@ -18,7 +18,7 @@ function setupClickHandler(): void {
 export async function notifyCriticalRisk(domain: string, riskScore: number): Promise<void> {
 	const config: Configuration = await getConfig();
 	const threshold = config.thresholds.critical;
-	if (riskScore < threshold && riskScore < 0.90) return;
+	if (riskScore < threshold && riskScore < 0.9) return;
 
 	const profile = await getDomainProfile(domain);
 	const now = Date.now();
@@ -49,4 +49,3 @@ export async function notifyCriticalRisk(domain: string, riskScore: number): Pro
 		await updateDomainProfile(domain, profile);
 	}
 }
-

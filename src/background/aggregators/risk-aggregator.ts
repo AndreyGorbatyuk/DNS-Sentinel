@@ -58,13 +58,10 @@ export class RiskAggregator {
 			enabledMetrics.push(metric.id);
 		}
 
-		const clampedScore =
-			totalWeight > 0 ? this.clamp(weightedSum / totalWeight, 0, 1) : 0.5;
+		const clampedScore = totalWeight > 0 ? this.clamp(weightedSum / totalWeight, 0, 1) : 0.5;
 		const riskScore = this.applySensitivity(clampedScore, config.sensitivity);
 		const confidence =
-			totalWeight > 0
-				? this.clamp(weightedConfidenceSum / totalWeight, 0, 1)
-				: 0.0;
+			totalWeight > 0 ? this.clamp(weightedConfidenceSum / totalWeight, 0, 1) : 0.0;
 
 		const details: RiskDetails = {
 			riskScore,
