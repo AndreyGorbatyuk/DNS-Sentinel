@@ -25,17 +25,11 @@ const mockChromeStorage = {
 	},
 };
 
-// Assign to globalThis instead of global
-type ReputationTestGlobals = typeof globalThis & {
-	chrome: typeof mockChromeStorage;
-	fetch: typeof fetch;
-};
-
-const globalMocks = globalThis as ReputationTestGlobals;
-globalMocks.chrome = mockChromeStorage;
-
-// Mock fetch for API calls
-globalMocks.fetch = vi.fn();
+// Assign to globalThis instead of global, using loose typing to avoid TS type conflicts
+if (typeof globalThis !== 'undefined') {
+	(globalThis as any).chrome = mockChromeStorage;
+	(globalThis as any).fetch = vi.fn();
+}
 
 type StorageKey = string | string[] | Record<string, unknown> | null;
 type ReputationDetailsShape = {
@@ -311,7 +305,7 @@ describe('ReputationMetricCalculator', () => {
 
 			// Find domain age source in details
 			const details = result.details as ReputationDetailsShape;
-			const ageSource = details.sources.find((source) => source.name === 'Domain Age');
+			const ageSource = details.sources.find((source) => source.name === 'Domain Age')!;
 			expect(ageSource).toBeDefined();
 			expect(ageSource.score).toBeGreaterThan(0.5); // Penalty score
 		});
@@ -355,7 +349,7 @@ describe('ReputationMetricCalculator', () => {
 
 			// Find domain age source
 			const details = result.details as ReputationDetailsShape;
-			const ageSource = details.sources.find((source) => source.name === 'Domain Age');
+			const ageSource = details.sources.find((source) => source.name === 'Domain Age')!;
 			expect(ageSource).toBeDefined();
 			expect(ageSource.score).toBe(0.0); // No penalty
 		});

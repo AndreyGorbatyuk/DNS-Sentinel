@@ -70,7 +70,7 @@ export interface MetricResult {
 	id: string;
 	value: number;
 	confidence: number;
-	details?: Record<string, unknown>;
+	details: Record<string, any>;
 }
 
 export interface WelfordStats {

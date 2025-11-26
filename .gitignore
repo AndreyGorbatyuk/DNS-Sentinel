@@ -7,7 +7,7 @@ dist/
 .cursor
 BENCHMARK_REPORT.md
 TEST_FAILURE_REPORT.md
-
+*.zip
 # Compiled JavaScript files (TypeScript output)
 src/**/*.js
 test/**/*.js

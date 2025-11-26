@@ -46,10 +46,10 @@ vi.stubGlobal('chrome', mockChromeStorage);
 
 // Also set it directly on globalThis and global as fallback
 if (typeof globalThis !== 'undefined') {
-	(globalThis as { chrome?: typeof mockChromeStorage }).chrome = mockChromeStorage;
+	(globalThis as unknown as { chrome?: typeof mockChromeStorage }).chrome = mockChromeStorage;
 }
 if (typeof global !== 'undefined') {
-	(global as { chrome?: typeof mockChromeStorage }).chrome = mockChromeStorage;
+	(global as unknown as { chrome?: typeof mockChromeStorage }).chrome = mockChromeStorage;
 }
 
 const defineChromeProperty = (target: unknown) => {

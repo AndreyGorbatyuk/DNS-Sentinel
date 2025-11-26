@@ -15,6 +15,7 @@ interface RateStats {
 }
 
 interface RateDetails {
+	[key: string]: any;
 	oneMinute: { count: number; rate: number };
 	fiveMinute: { count: number; rate: number };
 	fifteenMinute: { count: number; rate: number };

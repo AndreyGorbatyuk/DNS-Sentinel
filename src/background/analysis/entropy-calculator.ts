@@ -2,6 +2,7 @@ import type { Configuration, MetricResult } from '../../types/index.js';
 import { getConfig } from '../storage/configuration-store.js';
 
 interface EntropyDetails {
+	[key: string]: any;
 	shannonEntropy: number;
 	maxPossibleEntropy: number;
 	domainLength: number;

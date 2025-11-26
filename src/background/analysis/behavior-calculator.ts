@@ -15,6 +15,7 @@ interface BehaviorStats {
 }
 
 interface BehaviorDetails {
+	[key: string]: any;
 	timeOfDayDeviation: number;
 	dayOfWeekDeviation: number;
 	referrerMismatch: boolean;

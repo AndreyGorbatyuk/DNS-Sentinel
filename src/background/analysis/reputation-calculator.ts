@@ -135,9 +135,10 @@ export class ReputationMetricCalculator {
 					domainProfile.reputationCache.push(cached);
 				}
 			}
-			const isValid = cached && Date.now() - cached.timestamp < this.CACHE_TTL;
-			let score = isValid ? cached.score : undefined;
-			let sourceConfidence = cached?.confidence ?? 0.8;
+			const isValid = !!cached && Date.now() - (cached?.timestamp ?? 0) < this.CACHE_TTL;
+			let score = isValid && cached ? cached.score : undefined;
+			let sourceConfidence =
+				cached && cached.confidence !== undefined ? cached.confidence : 0.8;
 			if (!isValid) {
 				usedCacheOnly = false;
 				try {

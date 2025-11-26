@@ -7,7 +7,7 @@
  */
 
 import { beforeEach, bench, describe } from 'vitest';
-import type { DomainProfile, WelfordStats } from '../src/types/index.ts';
+import type { DomainProfile, WelfordStats } from '../src/types/index.js';
 
 // Mock chrome.storage.local with performance tracking
 type StorageRecord = Record<string, unknown>;
@@ -54,13 +54,7 @@ const mockChromeStorage = {
 	},
 };
 
-type ChromeShim = typeof globalThis & {
-	chrome: {
-		storage: typeof mockChromeStorage;
-	};
-};
-
-(globalThis as ChromeShim).chrome = { storage: mockChromeStorage };
+(globalThis as any).chrome = { storage: mockChromeStorage };
 
 // Mock domain statistics functions
 const getDomainProfile = async (domain: string): Promise<DomainProfile | null> => {
@@ -131,8 +125,7 @@ describe('DomainProfile Update Benchmarks', () => {
 		bench('storage.get (single profile)', async () => {
 			const profile = generateProfile('example.com', 10);
 			await chrome.storage.local.set({ 'profile_example.com': profile });
-			const result = await chrome.storage.local.get('profile_example.com');
-			return result;
+			await chrome.storage.local.get('profile_example.com');
 		});
 
 		bench('storage.set (single profile)', async () => {
@@ -148,8 +141,7 @@ describe('DomainProfile Update Benchmarks', () => {
 			}
 			// Fetch all
 			const keys = Array.from({ length: 10 }, (_, i) => `profile_example${i}.com`);
-			const result = await chrome.storage.local.get(keys);
-			return result;
+			await chrome.storage.local.get(keys);
 		});
 
 		bench('storage.set (10 profiles)', async () => {
@@ -167,8 +159,7 @@ describe('DomainProfile Update Benchmarks', () => {
 				await chrome.storage.local.set({ [`profile_example${i}.com`]: profile });
 			}
 			// Fetch all
-			const result = await chrome.storage.local.get(null);
-			return result;
+			await chrome.storage.local.get(null);
 		});
 
 		bench('storage.remove (single profile)', async () => {
@@ -199,8 +190,6 @@ describe('DomainProfile Update Benchmarks', () => {
 			stats.mean += delta / stats.count;
 			const delta2 = value - stats.mean;
 			stats.M2 += delta * delta2;
-
-			return stats;
 		});
 
 		bench('Welford update (warm, 100 samples)', () => {
@@ -212,8 +201,6 @@ describe('DomainProfile Update Benchmarks', () => {
 			stats.mean += delta / stats.count;
 			const delta2 = value - stats.mean;
 			stats.M2 += delta * delta2;
-
-			return stats;
 		});
 
 		bench('Welford update (warm, 1000 samples)', () => {
@@ -225,8 +212,6 @@ describe('DomainProfile Update Benchmarks', () => {
 			stats.mean += delta / stats.count;
 			const delta2 = value - stats.mean;
 			stats.M2 += delta * delta2;
-
-			return stats;
 		});
 
 		bench('Welford batch update (10 values)', () => {
@@ -240,8 +225,6 @@ describe('DomainProfile Update Benchmarks', () => {
 				const delta2 = value - stats.mean;
 				stats.M2 += delta * delta2;
 			}
-
-			return stats;
 		});
 
 		bench('Welford batch update (100 values)', () => {
@@ -255,14 +238,11 @@ describe('DomainProfile Update Benchmarks', () => {
 				const delta2 = value - stats.mean;
 				stats.M2 += delta * delta2;
 			}
-
-			return stats;
 		});
 
 		bench('variance calculation from M2', () => {
 			const stats: WelfordStats = { count: 100, mean: 10.0, M2: 500.0 };
 			const variance = stats.count > 1 ? stats.M2 / (stats.count - 1) : 0;
-			return variance;
 		});
 	});
 
@@ -270,13 +250,11 @@ describe('DomainProfile Update Benchmarks', () => {
 		bench('push timestamp to empty array', () => {
 			const series: number[] = [];
 			series.push(Date.now());
-			return series;
 		});
 
 		bench('push timestamp to array (60 items)', () => {
 			const series = Array.from({ length: 60 }, (_, i) => Date.now() - i * 1000);
 			series.push(Date.now());
-			return series;
 		});
 
 		bench('push + shift (circular buffer, 120 items)', () => {
@@ -285,7 +263,6 @@ describe('DomainProfile Update Benchmarks', () => {
 			if (series.length > 120) {
 				series.shift();
 			}
-			return series;
 		});
 
 		bench('filter old timestamps (60 of 120)', () => {
@@ -293,7 +270,6 @@ describe('DomainProfile Update Benchmarks', () => {
 			const series = Array.from({ length: 120 }, (_, i) => now - i * 1000);
 			const cutoff = now - 60000;
 			const filtered = series.filter((ts) => ts >= cutoff);
-			return filtered;
 		});
 
 		bench('filter old timestamps (300 of 600)', () => {
@@ -301,13 +277,11 @@ describe('DomainProfile Update Benchmarks', () => {
 			const series = Array.from({ length: 600 }, (_, i) => now - i * 1000);
 			const cutoff = now - 300000;
 			const filtered = series.filter((ts) => ts >= cutoff);
-			return filtered;
 		});
 
 		bench('slice last N elements (60 of 120)', () => {
 			const series = Array.from({ length: 120 }, (_, i) => Date.now() - i * 1000);
 			const sliced = series.slice(-60);
-			return sliced;
 		});
 
 		bench('array length check (avoid redundant operations)', () => {
@@ -315,7 +289,6 @@ describe('DomainProfile Update Benchmarks', () => {
 			if (series.length > 120) {
 				series.shift();
 			}
-			return series.length;
 		});
 	});
 
@@ -323,19 +296,16 @@ describe('DomainProfile Update Benchmarks', () => {
 		bench('shallow clone (spread operator)', () => {
 			const profile = generateProfile('example.com', 100);
 			const cloned = { ...profile };
-			return cloned;
 		});
 
 		bench('deep clone (JSON.parse + JSON.stringify)', () => {
 			const profile = generateProfile('example.com', 100);
 			const cloned = JSON.parse(JSON.stringify(profile));
-			return cloned;
 		});
 
 		bench('structured clone (modern API)', () => {
 			const profile = generateProfile('example.com', 100);
 			const cloned = structuredClone(profile);
-			return cloned;
 		});
 
 		bench('manual deep clone (arrays + objects)', () => {
@@ -359,7 +329,6 @@ describe('DomainProfile Update Benchmarks', () => {
 				dayFrequencies: profile.dayFrequencies ? [...profile.dayFrequencies] : undefined,
 				typicalReferrers: profile.typicalReferrers ? [...profile.typicalReferrers] : undefined,
 			};
-			return cloned;
 		});
 	});
 
@@ -384,8 +353,6 @@ describe('DomainProfile Update Benchmarks', () => {
 					pruned++;
 				}
 			}
-
-			return pruned;
 		});
 
 		bench('prune excess profiles (100 -> 50)', async () => {
@@ -409,8 +376,6 @@ describe('DomainProfile Update Benchmarks', () => {
 					pruned++;
 				}
 			}
-
-			return pruned;
 		});
 
 		bench('sort profiles by lastSeen (100 profiles)', async () => {
@@ -422,7 +387,6 @@ describe('DomainProfile Update Benchmarks', () => {
 
 			const profiles = await getAllProfiles();
 			const sorted = profiles.sort((a, b) => a.lastSeen - b.lastSeen);
-			return sorted.length;
 		});
 	});
 
@@ -459,15 +423,12 @@ describe('DomainProfile Update Benchmarks', () => {
 				_version: 2,
 				_updatedAt: Date.now(),
 			};
-
-			return migrated;
 		});
 
 		bench('check if migration needed', () => {
 			const profile = generateProfile('example.com', 50);
 			const currentVersion = 2;
 			const needsMigration = !profile._version || profile._version < currentVersion;
-			return needsMigration;
 		});
 
 		bench('batch migration (10 profiles)', () => {
@@ -498,8 +459,6 @@ describe('DomainProfile Update Benchmarks', () => {
 				_version: 2,
 				_updatedAt: Date.now(),
 			}));
-
-			return migrated.length;
 		});
 	});
 
@@ -513,7 +472,6 @@ describe('DomainProfile Update Benchmarks', () => {
 			const profile = generateProfile('existing.com', 50);
 			await updateDomainProfile('existing.com', profile);
 			const retrieved = await getDomainProfile('existing.com');
-			return retrieved;
 		});
 
 		bench('update existing profile (increment requestCount)', async () => {
@@ -599,19 +557,19 @@ describe('DomainProfile Update Benchmarks', () => {
 		bench('measure profile size (10 requests)', () => {
 			const profile = generateProfile('measure10.com', 10);
 			const json = JSON.stringify(profile);
-			return json.length; // Approximate bytes (UTF-8)
+			void json.length;
 		});
 
 		bench('measure profile size (100 requests)', () => {
 			const profile = generateProfile('measure100.com', 100);
 			const json = JSON.stringify(profile);
-			return json.length;
+			void json.length;
 		});
 
 		bench('measure profile size (1000 requests)', () => {
 			const profile = generateProfile('measure1000.com', 1000);
 			const json = JSON.stringify(profile);
-			return json.length;
+			void json.length;
 		});
 
 		bench('measure 100 profiles total size', () => {
@@ -619,7 +577,7 @@ describe('DomainProfile Update Benchmarks', () => {
 				generateProfile(`example${i}.com`, 50),
 			);
 			const json = JSON.stringify(profiles);
-			return json.length;
+			void json.length;
 		});
 	});
 });

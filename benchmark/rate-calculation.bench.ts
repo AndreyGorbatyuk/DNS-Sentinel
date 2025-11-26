@@ -7,8 +7,8 @@
  */
 
 import { beforeEach, bench, describe } from 'vitest';
-import { RateMetricCalculator } from '../src/background/analysis/rate-calculator.ts';
-import type { DomainProfile, RequestContext } from '../src/types/index.ts';
+import { RateMetricCalculator } from '../src/background/analysis/rate-calculator.js';
+import type { DomainProfile, RequestContext } from '../src/types/index.js';
 
 // Mock chrome.storage.local
 type StorageRecord = Record<string, unknown>;
@@ -25,13 +25,7 @@ const mockChromeStorage = {
 	},
 };
 
-type ChromeShim = typeof globalThis & {
-	chrome: {
-		storage: typeof mockChromeStorage;
-	};
-};
-
-(globalThis as ChromeShim).chrome = { storage: mockChromeStorage };
+(globalThis as any).chrome = { storage: mockChromeStorage };
 
 // Mock configuration-store
 const mockGetConfig = async () => ({
@@ -118,7 +112,6 @@ describe('RateMetricCalculator Benchmarks', () => {
 			const timestamps = Array.from({ length: 60 }, (_, i) => now - i * 1000);
 			const cutoff = now - 60000;
 			const filtered = timestamps.filter((ts) => ts >= cutoff);
-			return filtered.length;
 		});
 
 		bench('filter 300 timestamps (5-minute window)', () => {
@@ -126,7 +119,6 @@ describe('RateMetricCalculator Benchmarks', () => {
 			const timestamps = Array.from({ length: 300 }, (_, i) => now - i * 1000);
 			const cutoff = now - 300000;
 			const filtered = timestamps.filter((ts) => ts >= cutoff);
-			return filtered.length;
 		});
 
 		bench('filter 900 timestamps (15-minute window)', () => {
@@ -134,7 +126,6 @@ describe('RateMetricCalculator Benchmarks', () => {
 			const timestamps = Array.from({ length: 900 }, (_, i) => now - i * 1000);
 			const cutoff = now - 900000;
 			const filtered = timestamps.filter((ts) => ts >= cutoff);
-			return filtered.length;
 		});
 
 		bench('filter 120 timestamps (max capacity, 1-min)', () => {
@@ -142,7 +133,6 @@ describe('RateMetricCalculator Benchmarks', () => {
 			const timestamps = Array.from({ length: 120 }, (_, i) => now - i * 500);
 			const cutoff = now - 60000;
 			const filtered = timestamps.filter((ts) => ts >= cutoff);
-			return filtered.length;
 		});
 	});
 
@@ -198,7 +188,6 @@ describe('RateMetricCalculator Benchmarks', () => {
 			const mean = 5;
 			const variance = 4; // std = 2
 			const zScore = variance > 0 ? (value - mean) / Math.sqrt(variance) : 0;
-			return zScore;
 		});
 
 		bench('Z-score with zero variance (edge case)', () => {
@@ -206,7 +195,6 @@ describe('RateMetricCalculator Benchmarks', () => {
 			const mean = 5;
 			const variance = 0;
 			const zScore = variance > 0 ? (value - mean) / Math.sqrt(variance) : 0;
-			return zScore;
 		});
 
 		bench('Z-score batch (10 calculations)', () => {
@@ -216,7 +204,6 @@ describe('RateMetricCalculator Benchmarks', () => {
 			const results = values.map((value) =>
 				variance > 0 ? (value - mean) / Math.sqrt(variance) : 0,
 			);
-			return results;
 		});
 	});
 
@@ -224,20 +211,17 @@ describe('RateMetricCalculator Benchmarks', () => {
 		bench('sigmoid single value', () => {
 			const x = 2.5;
 			const result = 1 / (1 + Math.exp(-x));
-			return result;
 		});
 
 		bench('sigmoid batch (10 values)', () => {
 			const values = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6];
 			const results = values.map((x) => 1 / (1 + Math.exp(-x)));
-			return results;
 		});
 
 		bench('sigmoid with scaling (x * 2)', () => {
 			const x = 1.5;
 			const scaled = x * 2;
 			const result = 1 / (1 + Math.exp(-scaled));
-			return result;
 		});
 	});
 
@@ -245,32 +229,28 @@ describe('RateMetricCalculator Benchmarks', () => {
 		bench('M1: new domain (no profile)', async () => {
 			mockProfiles.clear();
 			const context = generateContext();
-			const result = await calculator.calculate('new-domain.com', context);
-			return result;
+			await calculator.calculate('new-domain.com', context);
 		});
 
 		bench('M1: small history (10 requests)', async () => {
 			const profile = generateProfile('small.com', 10);
 			mockProfiles.set('small.com', profile);
 			const context = generateContext();
-			const result = await calculator.calculate('small.com', context);
-			return result;
+			await calculator.calculate('small.com', context);
 		});
 
 		bench('M1: medium history (100 requests)', async () => {
 			const profile = generateProfile('medium.com', 100);
 			mockProfiles.set('medium.com', profile);
 			const context = generateContext();
-			const result = await calculator.calculate('medium.com', context);
-			return result;
+			await calculator.calculate('medium.com', context);
 		});
 
 		bench('M1: large history (500 requests)', async () => {
 			const profile = generateProfile('large.com', 500);
 			mockProfiles.set('large.com', profile);
 			const context = generateContext();
-			const result = await calculator.calculate('large.com', context);
-			return result;
+			await calculator.calculate('large.com', context);
 		});
 
 		bench('M1: burst scenario (120 requests in 1 min)', async () => {
@@ -296,8 +276,7 @@ describe('RateMetricCalculator Benchmarks', () => {
 			};
 			mockProfiles.set('burst.com', profile);
 			const context = generateContext(now);
-			const result = await calculator.calculate('burst.com', context);
-			return result;
+			await calculator.calculate('burst.com', context);
 		});
 	});
 
@@ -306,20 +285,18 @@ describe('RateMetricCalculator Benchmarks', () => {
 			const series = Array.from({ length: 60 }, (_, i) => Date.now() - i * 1000);
 			series.push(Date.now());
 			if (series.length > 120) series.shift();
-			return series.length;
 		});
 
 		bench('push + shift (300 elements, 5-min window)', () => {
 			const series = Array.from({ length: 300 }, (_, i) => Date.now() - i * 1000);
 			series.push(Date.now());
 			if (series.length > 120) series.shift();
-			return series.length;
 		});
 
 		bench('slice + concat vs push (60 elements)', () => {
 			const series = Array.from({ length: 60 }, (_, i) => Date.now() - i * 1000);
 			const newSeries = [...series, Date.now()];
-			return newSeries.length;
+			void newSeries;
 		});
 
 		bench('filter old timestamps (60 of 120)', () => {
@@ -327,7 +304,6 @@ describe('RateMetricCalculator Benchmarks', () => {
 			const series = Array.from({ length: 120 }, (_, i) => now - i * 1000);
 			const cutoff = now - 60000;
 			const filtered = series.filter((ts) => ts >= cutoff);
-			return filtered.length;
 		});
 	});
 

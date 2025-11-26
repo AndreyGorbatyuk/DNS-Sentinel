@@ -7,8 +7,8 @@
  */
 
 import { beforeEach, bench, describe } from 'vitest';
-import { EntropyMetricCalculator } from '../src/background/analysis/entropy-calculator.ts';
-import type { MetricResult } from '../src/types/index.ts';
+import { EntropyMetricCalculator } from '../src/background/analysis/entropy-calculator.js';
+import type { MetricResult } from '../src/types/index.js';
 
 // Mock chrome.storage.local (minimal for entropy calculator)
 type StorageRecord = Record<string, unknown>;
@@ -20,11 +20,7 @@ const mockChromeStorage = {
 	},
 };
 
-type EntropyBenchGlobals = typeof globalThis & {
-	chrome: typeof mockChromeStorage;
-};
-
-(globalThis as EntropyBenchGlobals).chrome = mockChromeStorage;
+(globalThis as any).chrome = mockChromeStorage;
 
 // Mock configuration-store
 const mockGetConfig = async () => ({
@@ -95,7 +91,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 				.slice(-2)
 				.join('.')
 				.replace(/[^a-z]/g, '');
-			return normalized;
 		});
 
 		bench('normalize medium domain (subdomain.example.co.uk)', () => {
@@ -106,7 +101,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 				.slice(-2)
 				.join('.')
 				.replace(/[^a-z]/g, '');
-			return normalized;
 		});
 
 		bench('normalize long domain (very-long-subdomain-name.example.com)', () => {
@@ -117,7 +111,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 				.slice(-2)
 				.join('.')
 				.replace(/[^a-z]/g, '');
-			return normalized;
 		});
 
 		bench('normalize with numbers and hyphens (test-123-abc.com)', () => {
@@ -128,7 +121,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 				.slice(-2)
 				.join('.')
 				.replace(/[^a-z]/g, '');
-			return normalized;
 		});
 
 		bench('normalize batch (10 domains)', () => {
@@ -144,7 +136,7 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 				'youtube.com',
 				'wikipedia.org',
 			];
-			return domains.map((domain) =>
+			domains.map((domain) =>
 				domain
 					.toLowerCase()
 					.split('.')
@@ -162,7 +154,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			for (const char of str) {
 				freq.set(char, (freq.get(char) || 0) + 1);
 			}
-			return freq.size;
 		});
 
 		bench('frequency map for medium string (20 chars)', () => {
@@ -171,7 +162,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			for (const char of str) {
 				freq.set(char, (freq.get(char) || 0) + 1);
 			}
-			return freq.size;
 		});
 
 		bench('frequency map for long string (50 chars)', () => {
@@ -180,7 +170,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			for (const char of str) {
 				freq.set(char, (freq.get(char) || 0) + 1);
 			}
-			return freq.size;
 		});
 
 		bench('frequency map for high entropy (26 unique chars)', () => {
@@ -189,7 +178,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			for (const char of str) {
 				freq.set(char, (freq.get(char) || 0) + 1);
 			}
-			return freq.size;
 		});
 
 		bench('frequency map batch (10 strings)', () => {
@@ -205,12 +193,11 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 				'youtube',
 				'wikipedia',
 			];
-			return strings.map((str) => {
+			strings.map((str) => {
 				const freq = new Map<string, number>();
 				for (const char of str) {
 					freq.set(char, (freq.get(char) || 0) + 1);
 				}
-				return freq.size;
 			});
 		});
 	});
@@ -231,7 +218,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 					entropy -= probability * Math.log2(probability);
 				}
 			}
-			return entropy;
 		});
 
 		bench('Shannon entropy for skewed distribution (low entropy)', () => {
@@ -249,7 +235,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 					entropy -= probability * Math.log2(probability);
 				}
 			}
-			return entropy;
 		});
 
 		bench('Shannon entropy for random distribution (medium entropy)', () => {
@@ -267,7 +252,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 					entropy -= probability * Math.log2(probability);
 				}
 			}
-			return entropy;
 		});
 
 		bench('Shannon entropy batch (10 distributions)', () => {
@@ -280,7 +264,7 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 				]);
 			});
 
-			return distributions.map((freq) => {
+			distributions.map((freq) => {
 				const totalLength = 40;
 				let entropy = 0;
 				for (const count of freq.values()) {
@@ -289,7 +273,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 						entropy -= probability * Math.log2(probability);
 					}
 				}
-				return entropy;
 			});
 		});
 	});
@@ -300,7 +283,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			const alphabetSize = 26;
 			const effectiveAlphabet = Math.min(length, alphabetSize);
 			const maxEntropy = Math.log2(effectiveAlphabet);
-			return maxEntropy;
 		});
 
 		bench('max entropy for medium domain (L=20)', () => {
@@ -308,7 +290,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			const alphabetSize = 26;
 			const effectiveAlphabet = Math.min(length, alphabetSize);
 			const maxEntropy = Math.log2(effectiveAlphabet);
-			return maxEntropy;
 		});
 
 		bench('max entropy for long domain (L=50)', () => {
@@ -316,13 +297,12 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			const alphabetSize = 26;
 			const effectiveAlphabet = Math.min(length, alphabetSize);
 			const maxEntropy = Math.log2(effectiveAlphabet);
-			return maxEntropy;
 		});
 
 		bench('max entropy batch (10 lengths)', () => {
 			const lengths = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
 			const alphabetSize = 26;
-			return lengths.map((length) => {
+			lengths.map((length) => {
 				const effectiveAlphabet = Math.min(length, alphabetSize);
 				return Math.log2(effectiveAlphabet);
 			});
@@ -335,7 +315,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			const maxEntropy = 4.0;
 			const ratio = entropy / maxEntropy;
 			const normalized = 1 / (1 + Math.exp(-5 * (ratio - 0.7)));
-			return normalized;
 		});
 
 		bench('sigmoid normalization (medium entropy ratio)', () => {
@@ -343,7 +322,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			const maxEntropy = 4.0;
 			const ratio = entropy / maxEntropy;
 			const normalized = 1 / (1 + Math.exp(-5 * (ratio - 0.7)));
-			return normalized;
 		});
 
 		bench('sigmoid normalization (high entropy ratio)', () => {
@@ -351,55 +329,46 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			const maxEntropy = 4.0;
 			const ratio = entropy / maxEntropy;
 			const normalized = 1 / (1 + Math.exp(-5 * (ratio - 0.7)));
-			return normalized;
 		});
 
 		bench('sigmoid batch (10 ratios)', () => {
 			const ratios = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
-			return ratios.map((ratio) => 1 / (1 + Math.exp(-5 * (ratio - 0.7))));
+			ratios.map((ratio) => 1 / (1 + Math.exp(-5 * (ratio - 0.7))));
 		});
 	});
 
 	describe('End-to-End: M2 Calculation', () => {
 		bench('M2: legitimate domain (google.com)', async () => {
-			const result = await calculator.calculate('google.com');
-			return result;
+			await calculator.calculate('google.com');
 		});
 
 		bench('M2: legitimate domain (wikipedia.org)', async () => {
-			const result = await calculator.calculate('wikipedia.org');
-			return result;
+			await calculator.calculate('wikipedia.org');
 		});
 
 		bench('M2: DGA domain (short, xj8k2p9qw4tz.com)', async () => {
-			const result = await calculator.calculate('xj8k2p9qw4tz.com');
-			return result;
+			await calculator.calculate('xj8k2p9qw4tz.com');
 		});
 
 		bench('M2: DGA domain (long, a8b2c9d4e7f1g3h5i6j0k.net)', async () => {
-			const result = await calculator.calculate('a8b2c9d4e7f1g3h5i6j0k.net');
-			return result;
+			await calculator.calculate('a8b2c9d4e7f1g3h5i6j0k.net');
 		});
 
 		bench('M2: very short domain (a.io)', async () => {
-			const result = await calculator.calculate('a.io');
-			return result;
+			await calculator.calculate('a.io');
 		});
 
 		bench('M2: very long domain (240 chars)', async () => {
 			const longDomain = `${'a'.repeat(240)}.com`;
-			const result = await calculator.calculate(longDomain);
-			return result;
+			await calculator.calculate(longDomain);
 		});
 
 		bench('M2: subdomain (sub.example.com)', async () => {
-			const result = await calculator.calculate('sub.example.com');
-			return result;
+			await calculator.calculate('sub.example.com');
 		});
 
 		bench('M2: domain with numbers (test-123.com)', async () => {
-			const result = await calculator.calculate('test-123.com');
-			return result;
+			await calculator.calculate('test-123.com');
 		});
 	});
 
@@ -438,59 +407,60 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 	describe('String Operations Performance', () => {
 		bench('toLowerCase (10 chars)', () => {
 			const str = 'GoogleCom';
-			return str.toLowerCase();
+			str.toLowerCase();
 		});
 
 		bench('toLowerCase (50 chars)', () => {
 			const str = 'VeryLongDomainNameWithMixedCaseLettersForBenchmark';
-			return str.toLowerCase();
+			str.toLowerCase();
 		});
 
 		bench('split + slice + join (google.com)', () => {
 			const domain = 'google.com';
-			return domain.split('.').slice(-2).join('.');
+			domain.split('.').slice(-2).join('.');
 		});
 
 		bench('split + slice + join (sub.example.co.uk)', () => {
 			const domain = 'sub.example.co.uk';
-			return domain.split('.').slice(-2).join('.');
+			domain.split('.').slice(-2).join('.');
 		});
 
 		bench('replace regex /[^a-z]/g (10 chars)', () => {
 			const str = 'test-123-abc';
-			return str.replace(/[^a-z]/g, '');
+			str.replace(/[^a-z]/g, '');
 		});
 
 		bench('replace regex /[^a-z]/g (50 chars)', () => {
 			const str = 'very-long-domain-name-123-with-456-numbers-789-end';
-			return str.replace(/[^a-z]/g, '');
+			str.replace(/[^a-z]/g, '');
 		});
 	});
 
 	describe('Math Operations Performance', () => {
 		bench('Math.log2 (single)', () => {
-			return Math.log2(26);
+			Math.log2(26);
 		});
 
 		bench('Math.log2 (batch 10)', () => {
 			const values = [2, 4, 8, 16, 26, 32, 64, 100, 128, 256];
-			return values.map((v) => Math.log2(v));
+			values.map((v) => Math.log2(v));
 		});
 
 		bench('Math.exp (single)', () => {
-			return Math.exp(-2.5);
+			Math.exp(-2.5);
 		});
 
 		bench('Math.exp (batch 10)', () => {
 			const values = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4];
-			return values.map((v) => Math.exp(v));
+			values.map((v) => Math.exp(v));
 		});
 
 		bench('Math.log2 vs Math.exp (combined)', () => {
 			const x = 2.5;
 			const log = Math.log2(x);
 			const exp = Math.exp(-x);
-			return log + exp;
+			const combined = log + exp;
+			void combined;
 		});
 	});
 
@@ -512,7 +482,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			for (const domain of domains) {
 				results.push(await calculator.calculate(domain));
 			}
-			return results;
 		});
 
 		bench('M2: batch 10 DGA domains', async () => {
@@ -521,7 +490,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			for (const domain of domains) {
 				results.push(await calculator.calculate(domain));
 			}
-			return results;
 		});
 
 		bench('M2: batch 10 mixed domains', async () => {
@@ -541,7 +509,6 @@ describe('EntropyMetricCalculator Benchmarks', () => {
 			for (const domain of domains) {
 				results.push(await calculator.calculate(domain));
 			}
-			return results;
 		});
 	});
 });
