@@ -4,15 +4,26 @@
 	"version": "1.0.0",
 	"description": "Ultra-fast client-side anti-phishing Chrome extension",
 	"permissions": [
-		"webRequest",
-		"webRequestBlocking",
+		"declarativeNetRequest",
+		"declarativeNetRequestFeedback",
 		"storage",
 		"tabs",
 		"alarms",
 		"notifications",
-		"tts",
+		"tts"
+	],
+	"host_permissions": [
 		"<all_urls>"
 	],
+	"declarative_net_request": {
+		"rule_resources": [
+			{
+				"id": "ruleset",
+				"enabled": true,
+				"path": "background/rules.json"
+			}
+		]
+	},
 	"background": {
 		"service_worker": "background/index.ts",
 		"type": "module"

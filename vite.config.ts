@@ -3,7 +3,6 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import webExtension from 'vite-plugin-web-extension';
 
-// Plugin to copy icons directory - runs after bundle is written
 function copyIcons() {
 	const copyIconsFiles = () => {
 		const iconsSrc = resolve(__dirname, 'src/icons');
@@ -39,13 +38,43 @@ function copyIcons() {
 	};
 }
 
+function copyRules() {
+	const copyRulesFile = () => {
+		const rulesSrc = resolve(__dirname, 'src/background/rules.json');
+		const rulesDest = resolve(__dirname, 'dist/background/rules.json');
+
+		if (!existsSync(rulesSrc)) return;
+
+		const destDir = resolve(__dirname, 'dist/background');
+		if (!existsSync(destDir)) {
+			mkdirSync(destDir, { recursive: true });
+		}
+
+		copyFileSync(rulesSrc, rulesDest);
+	};
+
+	return {
+		name: 'copy-rules',
+		buildStart() {
+			copyRulesFile();
+		},
+		writeBundle() {
+			copyRulesFile();
+		},
+		generateBundle() {
+			copyRulesFile();
+		},
+	};
+}
+
 export default defineConfig({
 	root: 'src',
 	plugins: [
 		copyIcons(),
+		copyRules(),
 		webExtension({
 			manifest: './manifest.json',
-			watchFilePaths: ['icons/**/*'],
+			watchFilePaths: ['icons/**/*', 'background/rules.json'],
 		}),
 	],
 	resolve: {
