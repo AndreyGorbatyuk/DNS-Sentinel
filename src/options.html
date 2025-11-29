@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>DNS Sentinel - Settings</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 24px;
+			font-family: system-ui, -apple-system, sans-serif;
+			background: #f5f5f5;
+		}
+		.container {
+			max-width: 600px;
+			margin: 0 auto;
+			background: white;
+			border-radius: 8px;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+			padding: 32px;
+		}
+		h1 {
+			margin: 0 0 8px 0;
+			font-size: 24px;
+			color: #1a1a1a;
+		}
+		.subtitle {
+			color: #666;
+			margin: 0 0 32px 0;
+			font-size: 14px;
+		}
+		.section {
+			margin-bottom: 32px;
+		}
+		.section-title {
+			font-size: 18px;
+			font-weight: 600;
+			margin: 0 0 16px 0;
+			color: #1a1a1a;
+		}
+		.form-group {
+			margin-bottom: 24px;
+		}
+		label {
+			display: block;
+			font-weight: 500;
+			margin-bottom: 8px;
+			color: #333;
+			font-size: 14px;
+		}
+		input[type="text"] {
+			width: 100%;
+			padding: 10px 12px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			font-size: 14px;
+			font-family: monospace;
+			box-sizing: border-box;
+		}
+		input[type="text"]:focus {
+			outline: none;
+			border-color: #1976d2;
+			box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+		}
+		.note {
+			font-size: 12px;
+			color: #666;
+			margin-top: 4px;
+			line-height: 1.4;
+		}
+		.actions {
+			display: flex;
+			gap: 12px;
+			padding-top: 16px;
+			border-top: 1px solid #eee;
+		}
+		button {
+			padding: 10px 20px;
+			border: none;
+			border-radius: 4px;
+			font-size: 14px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: background-color 0.2s;
+		}
+		button:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+		.btn-primary {
+			background: #1976d2;
+			color: white;
+		}
+		.btn-primary:hover:not(:disabled) {
+			background: #1565c0;
+		}
+		.btn-secondary {
+			background: #f5f5f5;
+			color: #333;
+		}
+		.btn-secondary:hover:not(:disabled) {
+			background: #e0e0e0;
+		}
+		.toast {
+			position: fixed;
+			top: 24px;
+			right: 24px;
+			padding: 12px 20px;
+			border-radius: 4px;
+			color: white;
+			font-size: 14px;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+			opacity: 0;
+			transform: translateY(-20px);
+			transition: opacity 0.3s, transform 0.3s;
+			z-index: 1000;
+			max-width: 400px;
+		}
+		.toast.show {
+			opacity: 1;
+			transform: translateY(0);
+		}
+		.toast.success {
+			background: #388e3c;
+		}
+		.toast.error {
+			background: #d32f2f;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>DNS Sentinel</h1>
+		<p class="subtitle">Configure API keys for enhanced threat detection</p>
+
+		<div class="section">
+			<h2 class="section-title">API Keys</h2>
+
+			<div class="form-group">
+				<label for="googleSafeBrowsing">Google Safe Browsing API Key</label>
+				<input type="text" id="googleSafeBrowsing" placeholder="Enter API key">
+				<p class="note">Required for more than ~10 checks per day</p>
+			</div>
+
+			<div class="form-group">
+				<label for="phishTank">PhishTank API Key</label>
+				<input type="text" id="phishTank" placeholder="Enter API key (optional)">
+				<p class="note">Optional — leave empty (works without key, but with low rate limit)</p>
+			</div>
+
+			<div class="form-group">
+				<label for="virusTotal">VirusTotal API Key</label>
+				<input type="text" id="virusTotal" placeholder="Enter API key (optional)">
+				<p class="note">Optional bonus check</p>
+			</div>
+		</div>
+
+		<div class="actions">
+			<button id="saveBtn" class="btn-primary">Save</button>
+			<button id="cancelBtn" class="btn-secondary">Cancel</button>
+		</div>
+	</div>
+
+	<div id="toast" class="toast"></div>
+
+	<script type="module" src="./options.ts"></script>
+</body>
+</html>
+

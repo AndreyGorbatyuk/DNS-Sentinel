@@ -1,10 +1,10 @@
 import type { Configuration } from '../../types/index.js';
 
-const STORAGE_KEY = 'dns-sentinel-config';
+const STORAGE_KEY = 'extension_config';
 
 export async function getConfig(): Promise<Configuration> {
 	try {
-		const data = await chrome.storage.sync.get(STORAGE_KEY);
+		const data = await chrome.storage.local.get(STORAGE_KEY);
 		const stored = data[STORAGE_KEY] as Partial<Configuration> | undefined;
 
 		const config: Configuration = {
@@ -50,6 +50,11 @@ export async function getConfig(): Promise<Configuration> {
 				enabled: stored?.storage?.enabled ?? true,
 				maxProfiles: stored?.storage?.maxProfiles ?? 10000,
 			},
+			apiKeys: {
+				googleSafeBrowsing: stored?.apiKeys?.googleSafeBrowsing ?? '',
+				phishTank: stored?.apiKeys?.phishTank ?? '',
+				virusTotal: stored?.apiKeys?.virusTotal ?? '',
+			},
 		};
 
 		const sum = config.weights.M1 + config.weights.M2 + config.weights.M3 + config.weights.M4;
@@ -91,12 +96,54 @@ export async function getConfig(): Promise<Configuration> {
 				},
 			},
 			storage: { enabled: true, maxProfiles: 10000 },
+			apiKeys: {
+				googleSafeBrowsing: '',
+				phishTank: '',
+				virusTotal: '',
+			},
 		};
 	}
 }
 
-export async function saveConfig(_config: Partial<Configuration>): Promise<void> {
-	// TODO: implement
+/**
+ * Deep merges two objects, handling nested structures and arrays
+ */
+function deepMerge<T extends Record<string, any>>(target: T, source: Partial<T>): T {
+	const result = { ...target };
+
+	for (const key in source) {
+		if (source[key] === undefined) {
+			continue;
+		}
+
+		if (
+			source[key] !== null &&
+			typeof source[key] === 'object' &&
+			!Array.isArray(source[key]) &&
+			target[key] !== null &&
+			typeof target[key] === 'object' &&
+			!Array.isArray(target[key])
+		) {
+			result[key] = deepMerge(target[key], source[key] as Partial<T[Extract<keyof T, string>]>);
+		} else {
+			result[key] = source[key] as T[Extract<keyof T, string>];
+		}
+	}
+
+	return result;
+}
+
+export async function saveConfig(partial: Partial<Configuration>): Promise<void> {
+	try {
+		const current = await getConfig();
+		const merged = deepMerge(current, partial);
+
+		await chrome.storage.local.set({
+			[STORAGE_KEY]: merged,
+		});
+	} catch (error) {
+		throw new Error(`Failed to save configuration: ${error instanceof Error ? error.message : String(error)}`);
+	}
 }
 
 export async function resetConfig(): Promise<void> {

@@ -26,10 +26,14 @@ const mockChromeStorage = {
 };
 
 // Assign to globalThis instead of global, using loose typing to avoid TS type conflicts
-if (typeof globalThis !== 'undefined') {
-	(globalThis as any).chrome = mockChromeStorage;
-	(globalThis as any).fetch = vi.fn();
-}
+	if (typeof globalThis !== 'undefined') {
+		(globalThis as any).chrome = mockChromeStorage;
+		(globalThis as any).fetch = vi.fn();
+		(globalThis as any).console = {
+			warn: vi.fn(),
+			error: vi.fn(),
+		};
+	}
 
 type StorageKey = string | string[] | Record<string, unknown> | null;
 type ReputationDetailsShape = {
@@ -43,6 +47,28 @@ describe('ReputationMetricCalculator', () => {
 	let calculator: ReputationMetricCalculator;
 	let mockConfig: Configuration;
 	let baseTimestamp: number;
+
+	function createTestProfile(domain: string, ageDays = 60): DomainProfile {
+		const now = Date.now();
+		return {
+			domain,
+			firstSeen: now - ageDays * 86400000,
+			lastSeen: now - 3600000,
+			requestCount: 10,
+			timeSeries: {
+				minutely: [],
+				fiveMinute: [],
+				fifteenMinute: [],
+			},
+			stats: {
+				rate: {
+					oneMinute: { count: 10, mean: 1.0, M2: 0.5 },
+					fiveMinute: { count: 10, mean: 1.0, M2: 0.5 },
+					fifteenMinute: { count: 10, mean: 1.0, M2: 0.5 },
+				},
+			},
+		};
+	}
 
 	beforeEach(() => {
 		calculator = new ReputationMetricCalculator();
@@ -92,6 +118,11 @@ describe('ReputationMetricCalculator', () => {
 				enabled: true,
 				maxProfiles: 10000,
 			},
+			apiKeys: {
+				googleSafeBrowsing: '',
+				phishTank: '',
+				virusTotal: '',
+			},
 		};
 
 		vi.mocked(getConfig).mockResolvedValue(mockConfig);
@@ -100,6 +131,8 @@ describe('ReputationMetricCalculator', () => {
 		vi.mocked(mockChromeStorage.local.get).mockReset();
 		vi.mocked(mockChromeStorage.local.set).mockReset();
 		vi.mocked(fetch).mockReset();
+		vi.mocked(console.warn).mockClear();
+		vi.mocked(console.error).mockClear();
 	});
 
 	describe('Cache behavior', () => {
@@ -369,6 +402,313 @@ describe('ReputationMetricCalculator', () => {
 
 			// Verify no API calls were made
 			expect(fetch).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('API Key Handling', () => {
+		beforeEach(() => {
+			// Reset to default config with empty keys
+			mockConfig.apiKeys = {
+				googleSafeBrowsing: '',
+				phishTank: '',
+				virusTotal: '',
+			};
+			vi.mocked(getConfig).mockResolvedValue(mockConfig);
+		});
+
+		describe('Google Safe Browsing', () => {
+			it('should include ?key= parameter in URL when API key is present', async () => {
+				mockConfig.apiKeys = {
+					googleSafeBrowsing: 'test-api-key-12345',
+					phishTank: '',
+					virusTotal: '',
+				};
+				vi.mocked(getConfig).mockResolvedValue(mockConfig);
+
+				// Create profile with no cache to force API call
+				const profile = createTestProfile('example.com', 60);
+				profile.reputationCache = []; // Empty cache
+				vi.mocked(getDomainProfile).mockResolvedValue(profile);
+				vi.mocked(mockChromeStorage.local.get).mockResolvedValue({}); // No cached entries
+
+				vi.mocked(fetch).mockResolvedValue({
+					json: async () => ({ matches: [], malicious: false }),
+					ok: true,
+				} as Response);
+
+				await calculator.calculate('example.com', profile);
+
+				expect(fetch).toHaveBeenCalled();
+				const fetchCall = vi.mocked(fetch).mock.calls.find(
+					(call) => (call[0] as string).includes('safebrowsing.googleapis.com'),
+				);
+				expect(fetchCall).toBeDefined();
+				const url = fetchCall![0] as string;
+
+				expect(url).toContain('https://safebrowsing.googleapis.com/v4/threatMatches:find?key=');
+				expect(url).toContain(encodeURIComponent('test-api-key-12345'));
+			});
+
+			it('should NOT call API when API key is missing', async () => {
+				mockConfig.apiKeys = {
+					googleSafeBrowsing: '',
+					phishTank: '',
+					virusTotal: '',
+				};
+				vi.mocked(getConfig).mockResolvedValue(mockConfig);
+
+				// Create profile with no cache to force check
+				const profile = createTestProfile('example.com', 60);
+				profile.reputationCache = []; // Empty cache
+				vi.mocked(getDomainProfile).mockResolvedValue(profile);
+				vi.mocked(mockChromeStorage.local.get).mockResolvedValue({});
+
+				await calculator.calculate('example.com', profile);
+
+				const gsbCalls = vi.mocked(fetch).mock.calls.filter((call) =>
+					(call[0] as string).includes('safebrowsing.googleapis.com'),
+				);
+				expect(gsbCalls).toHaveLength(0);
+				expect(console.warn).toHaveBeenCalledWith('Google Safe Browsing skipped: no API key');
+			});
+
+			it('should skip when API key is whitespace only', async () => {
+				mockConfig.apiKeys = {
+					googleSafeBrowsing: '   ',
+					phishTank: '',
+					virusTotal: '',
+				};
+				vi.mocked(getConfig).mockResolvedValue(mockConfig);
+
+				// Create profile with no cache to force check
+				const profile = createTestProfile('example.com', 60);
+				profile.reputationCache = []; // Empty cache
+				vi.mocked(getDomainProfile).mockResolvedValue(profile);
+				vi.mocked(mockChromeStorage.local.get).mockResolvedValue({});
+
+				await calculator.calculate('example.com', profile);
+
+				const gsbCalls = vi.mocked(fetch).mock.calls.filter((call) =>
+					(call[0] as string).includes('safebrowsing.googleapis.com'),
+				);
+				expect(gsbCalls).toHaveLength(0);
+				expect(console.warn).toHaveBeenCalledWith('Google Safe Browsing skipped: no API key');
+			});
+		});
+
+		describe('PhishTank', () => {
+			it('should include app_key in form data when API key is present', async () => {
+				mockConfig.apiKeys = {
+					googleSafeBrowsing: '',
+					phishTank: 'phishtank-key-abc123',
+					virusTotal: '',
+				};
+				vi.mocked(getConfig).mockResolvedValue(mockConfig);
+
+				// Create profile with no cache to force API call
+				const profile = createTestProfile('example.com', 60);
+				profile.reputationCache = []; // Empty cache
+				vi.mocked(getDomainProfile).mockResolvedValue(profile);
+				vi.mocked(mockChromeStorage.local.get).mockResolvedValue({});
+
+				vi.mocked(fetch).mockResolvedValue({
+					json: async () => ({ results: { in_database: false, valid: false } }),
+					ok: true,
+					status: 200,
+				} as Response);
+
+				await calculator.calculate('example.com', profile);
+
+				const phishTankCall = vi.mocked(fetch).mock.calls.find(
+					(call) => (call[0] as string).includes('phishtank.com'),
+				);
+				expect(phishTankCall).toBeDefined();
+				const options = phishTankCall![1] as RequestInit;
+				const body = options.body as string;
+
+				expect(body).toContain('app_key=phishtank-key-abc123');
+				expect(body).toContain('url=https%3A%2F%2Fexample.com');
+				expect(body).toContain('format=json');
+			});
+
+			it('should NOT include app_key when API key is missing', async () => {
+				mockConfig.apiKeys = {
+					googleSafeBrowsing: '',
+					phishTank: '',
+					virusTotal: '',
+				};
+				vi.mocked(getConfig).mockResolvedValue(mockConfig);
+
+				// Create profile with no cache to force API call
+				const profile = createTestProfile('example.com', 60);
+				profile.reputationCache = []; // Empty cache
+				vi.mocked(getDomainProfile).mockResolvedValue(profile);
+				vi.mocked(mockChromeStorage.local.get).mockResolvedValue({});
+
+				vi.mocked(fetch).mockResolvedValue({
+					json: async () => ({ results: { in_database: false, valid: false } }),
+					ok: true,
+					status: 200,
+				} as Response);
+
+				await calculator.calculate('example.com', profile);
+
+				const phishTankCall = vi.mocked(fetch).mock.calls.find(
+					(call) => (call[0] as string).includes('phishtank.com'),
+				);
+				expect(phishTankCall).toBeDefined();
+				const options = phishTankCall![1] as RequestInit;
+				const body = options.body as string;
+
+				expect(body).not.toContain('app_key=');
+				expect(body).toContain('url=https%3A%2F%2Fexample.com');
+				expect(body).toContain('format=json');
+			});
+
+			it('should always include correct User-Agent header', async () => {
+				mockConfig.apiKeys = {
+					googleSafeBrowsing: '',
+					phishTank: 'test-key',
+					virusTotal: '',
+				};
+				vi.mocked(getConfig).mockResolvedValue(mockConfig);
+
+				// Create profile with no cache to force API call
+				const profile = createTestProfile('example.com', 60);
+				profile.reputationCache = []; // Empty cache
+				vi.mocked(getDomainProfile).mockResolvedValue(profile);
+				vi.mocked(mockChromeStorage.local.get).mockResolvedValue({});
+
+				vi.mocked(fetch).mockResolvedValue({
+					json: async () => ({ results: { in_database: false, valid: false } }),
+					ok: true,
+					status: 200,
+				} as Response);
+
+				await calculator.calculate('example.com', profile);
+
+				const phishTankCall = vi.mocked(fetch).mock.calls.find(
+					(call) => (call[0] as string).includes('phishtank.com'),
+				);
+				expect(phishTankCall).toBeDefined();
+				const options = phishTankCall![1] as RequestInit;
+				const headers = options.headers as Record<string, string>;
+
+				expect(headers['User-Agent']).toBe('MyPhishingGuard/1.0 (Chrome Extension)');
+				expect(headers['Content-Type']).toBe('application/x-www-form-urlencoded');
+			});
+
+			it('should handle status 509 (rate limit) with warning and fallback', async () => {
+				mockConfig.apiKeys = {
+					googleSafeBrowsing: '',
+					phishTank: '',
+					virusTotal: '',
+				};
+				vi.mocked(getConfig).mockResolvedValue(mockConfig);
+
+				// Create profile with no cache to force API call
+				const profile = createTestProfile('example.com', 60);
+				profile.reputationCache = []; // Empty cache
+				vi.mocked(getDomainProfile).mockResolvedValue(profile);
+				vi.mocked(mockChromeStorage.local.get).mockResolvedValue({});
+
+				vi.mocked(fetch).mockResolvedValue({
+					ok: false,
+					status: 509,
+					json: async () => ({}),
+				} as Response);
+
+				const result = await calculator.calculate('example.com', profile);
+
+				expect(console.warn).toHaveBeenCalledWith('PhishTank rate limit reached');
+				const phishTankSource = result.details.sources.find((s: any) => s.name === 'PhishTank');
+				expect(phishTankSource).toBeDefined();
+				expect(phishTankSource?.score).toBe(0.0);
+			});
+		});
+
+		describe('Error handling', () => {
+			it('should log errors with context when Google Safe Browsing fails', async () => {
+				mockConfig.apiKeys = {
+					googleSafeBrowsing: 'test-key',
+					phishTank: '',
+					virusTotal: '',
+				};
+				vi.mocked(getConfig).mockResolvedValue(mockConfig);
+
+				// Create profile with no cache to force API call
+				const profile = createTestProfile('example.com', 60);
+				profile.reputationCache = []; // Empty cache
+				vi.mocked(getDomainProfile).mockResolvedValue(profile);
+				vi.mocked(mockChromeStorage.local.get).mockResolvedValue({});
+
+				const error = new Error('Network error');
+				vi.mocked(fetch).mockRejectedValue(error);
+
+				await calculator.calculate('example.com', profile);
+
+				expect(console.error).toHaveBeenCalledWith(
+					'API error:',
+					error,
+					expect.objectContaining({
+						source: 'Google Safe Browsing',
+						domain: 'example.com',
+					}),
+				);
+			});
+
+			it('should log errors with context when PhishTank fails', async () => {
+				mockConfig.apiKeys = {
+					googleSafeBrowsing: '',
+					phishTank: '',
+					virusTotal: '',
+				};
+				vi.mocked(getConfig).mockResolvedValue(mockConfig);
+
+				// Create profile with no cache to force API call
+				const profile = createTestProfile('example.com', 60);
+				profile.reputationCache = []; // Empty cache
+				vi.mocked(getDomainProfile).mockResolvedValue(profile);
+				vi.mocked(mockChromeStorage.local.get).mockResolvedValue({});
+
+				const error = new Error('Request timeout');
+				vi.mocked(fetch).mockRejectedValue(error);
+
+				await calculator.calculate('example.com', profile);
+
+				expect(console.error).toHaveBeenCalledWith(
+					'API error:',
+					error,
+					expect.objectContaining({
+						source: 'PhishTank',
+						domain: 'example.com',
+					}),
+				);
+			});
+
+			it('should return fallback score (0.5) when API error occurs', async () => {
+				mockConfig.apiKeys = {
+					googleSafeBrowsing: 'test-key',
+					phishTank: '',
+					virusTotal: '',
+				};
+				vi.mocked(getConfig).mockResolvedValue(mockConfig);
+
+				// Create profile with no cache to force API call
+				const profile = createTestProfile('example.com', 60);
+				profile.reputationCache = []; // Empty cache
+				vi.mocked(getDomainProfile).mockResolvedValue(profile);
+				vi.mocked(mockChromeStorage.local.get).mockResolvedValue({});
+
+				vi.mocked(fetch).mockRejectedValue(new Error('API failure'));
+
+				const result = await calculator.calculate('example.com', profile);
+
+				const gsbSource = result.details.sources.find((s: any) => s.name === 'Google Safe Browsing');
+				expect(gsbSource).toBeDefined();
+				expect(gsbSource?.score).toBe(0.5);
+				expect(gsbSource?.confidence).toBe(0.0);
+			});
 		});
 	});
 });

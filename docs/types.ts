@@ -63,6 +63,12 @@ export interface Configuration {
 		enabled: boolean;
 		maxProfiles: number;
 	};
+
+	apiKeys?: {
+		googleSafeBrowsing?: string;   // Strongly recommended (10 000 requests/day free)
+		phishTank?: string;            // OPTIONAL — only increases PhishTank rate limit (hard to obtain in 2025)
+		virusTotal?: string;           // Optional extra check
+	};
 }
 
 // ============================================================================

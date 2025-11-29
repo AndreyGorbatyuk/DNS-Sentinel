@@ -84,6 +84,8 @@ export class ReputationMetricCalculator {
 
 	async calculate(domain: string, profile?: DomainProfile): Promise<MetricResult> {
 		const config: Configuration = await getConfig();
+		const keys = config.apiKeys || {};
+		
 		if (!config.groups.reputation.enabled) {
 			return {
 				id: 'M3',
@@ -143,44 +145,75 @@ export class ReputationMetricCalculator {
 				usedCacheOnly = false;
 				try {
 					if (src.name === 'Google Safe Browsing') {
-						const body = JSON.stringify({
-							client: { clientId: 'dns-sentinel', clientVersion: '1.0' },
-							threatInfo: {
-								threatTypes: ['MALWARE', 'SOCIAL_ENGINEERING'],
-								platformTypes: ['ANY_PLATFORM'],
-								threatEntryTypes: ['URL'],
-								threatEntries: [{ url }],
-							},
-						});
-						const res = await fetch('https://safebrowsing.googleapis.com/v4/threatMatches:find', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body,
-							signal: AbortSignal.timeout(3000),
-						});
-						if (res.ok) {
-							const payload = await res.json();
-							score = payload?.matches?.length > 0 || payload?.malicious ? 1.0 : 0.0;
-							sourceConfidence = payload?.confidence ?? sourceConfidence;
+						const apiKey = keys.googleSafeBrowsing?.trim();
+						if (!apiKey) {
+							console.warn('Google Safe Browsing skipped: no API key');
+							score = 0.5;
+							sourceConfidence = 0.0;
 						} else {
-							score = 0.0;
+							const body = JSON.stringify({
+								client: { clientId: 'dns-sentinel', clientVersion: '1.0' },
+								threatInfo: {
+									threatTypes: ['MALWARE', 'SOCIAL_ENGINEERING'],
+									platformTypes: ['ANY_PLATFORM'],
+									threatEntryTypes: ['URL'],
+									threatEntries: [{ url }],
+								},
+							});
+							const apiUrl = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${encodeURIComponent(apiKey)}`;
+							const res = await fetch(apiUrl, {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body,
+								signal: AbortSignal.timeout(3000),
+							});
+							if (res.ok) {
+								const payload = await res.json();
+								score = payload?.matches?.length > 0 || payload?.malicious ? 1.0 : 0.0;
+								sourceConfidence = payload?.confidence ?? sourceConfidence;
+							} else {
+								score = 0.0;
+								sourceConfidence = 0.5;
+							}
 						}
 					} else if (src.name === 'PhishTank') {
-						const body = new URLSearchParams({ url, format: 'json' });
-						const res = await fetch('https://checkurl.phishtank.com/checkurl/', {
+						// PhishTank works anonymously since 2020. Key is optional and only raises rate limit.
+						const formData = new URLSearchParams();
+						formData.append('url', url);
+						formData.append('format', 'json');
+						
+						const phishTankKey = keys.phishTank?.trim();
+						if (phishTankKey) {
+							formData.append('app_key', phishTankKey);
+						}
+						
+						const res = await fetch('http://checkurl.phishtank.com/checkurl/', {
 							method: 'POST',
-							headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-							body: body.toString(),
+							headers: {
+								'User-Agent': 'MyPhishingGuard/1.0 (Chrome Extension)',
+								'Content-Type': 'application/x-www-form-urlencoded',
+							},
+							body: formData.toString(),
 							signal: AbortSignal.timeout(3000),
 						});
-						const data = res.ok ? await res.json() : null;
-						score =
-							data?.results?.in_database && data?.results?.valid
-								? 1.0
-								: data?.malicious
+						
+						if (res.status === 509) {
+							console.warn('PhishTank rate limit reached');
+							score = 0.0;
+							sourceConfidence = 0.0;
+						} else if (res.ok) {
+							const data = await res.json();
+							score =
+								data?.results?.in_database && data?.results?.valid
 									? 1.0
-									: 0.0;
-						sourceConfidence = data?.confidence ?? sourceConfidence;
+									: data?.malicious
+										? 1.0
+										: 0.0;
+							sourceConfidence = data?.confidence ?? sourceConfidence;
+						} else {
+							score = 0.0;
+							sourceConfidence = 0.5;
+						}
 					} else if (src.name === 'OpenPhish') {
 						const now = Date.now();
 						if (now - this.openPhishLastFetch > 3600000 || this.openPhishCache.size === 0) {
@@ -220,8 +253,10 @@ export class ReputationMetricCalculator {
 							cachedAt: timestamp,
 						});
 					}
-				} catch {
+				} catch (error) {
+					console.error('API error:', error, { source: src.name, domain });
 					score = 0.5;
+					sourceConfidence = 0.0;
 				}
 			}
 			score = score ?? 0.5;
@@ -254,7 +289,10 @@ export class ReputationMetricCalculator {
 					signal: AbortSignal.timeout(3000),
 				});
 				certValid = true;
-			} catch {}
+			} catch (error) {
+				console.error('API error:', error, { source: 'TLS Certificate', domain });
+				certValid = false;
+			}
 		}
 		const certScore = certValid ? 0.0 : 0.9;
 		sources.push({ name: 'TLS Certificate', score: certScore, confidence: certValid ? 1.0 : 0.9 });
