@@ -1,0 +1,674 @@
+{
+  "surge.sh": {
+    "domain": "surge.sh",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 768
+  },
+  "godaddysites.com": {
+    "domain": "godaddysites.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 330
+  },
+  "tiktokbluesbadgeverification.xyz": {
+    "domain": "tiktokbluesbadgeverification.xyz",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 166
+  },
+  "84809.uk": {
+    "domain": "84809.uk",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 3156
+  },
+  "weeblysite.com": {
+    "domain": "weeblysite.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 207
+  },
+  "com.ml": {
+    "domain": "com.ml",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 163
+  },
+  "cordblood.com": {
+    "domain": "cordblood.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 772
+  },
+  "weebly.com": {
+    "domain": "weebly.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 271
+  },
+  "teams-d.com": {
+    "domain": "teams-d.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 349
+  },
+  "kesug.com": {
+    "domain": "kesug.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 333
+  },
+  "webflow.io": {
+    "domain": "webflow.io",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 576
+  },
+  "r2.dev": {
+    "domain": "r2.dev",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 210
+  },
+  "github.io": {
+    "domain": "github.io",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 695
+  },
+  "workers.dev": {
+    "domain": "workers.dev",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 605
+  },
+  "com.es": {
+    "domain": "com.es",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 171
+  },
+  "cs408.com": {
+    "domain": "cs408.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 3185
+  },
+  "ipfs.io": {
+    "domain": "ipfs.io",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 341
+  },
+  "pages.dev": {
+    "domain": "pages.dev",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 334
+  },
+  "lnstagramsupport.cm": {
+    "domain": "lnstagramsupport.cm",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 326
+  },
+  "6h699.com": {
+    "domain": "6h699.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 1165
+  },
+  "oraclecloud.com": {
+    "domain": "oraclecloud.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 1280
+  },
+  "tkshop8sn.top": {
+    "domain": "tkshop8sn.top",
+    "label": "phishing",
+    "score": 0.8591304347826088,
+    "confidence": 0.42000000000000004,
+    "timeMs": 1009
+  },
+  "tkshop4fj.top": {
+    "domain": "tkshop4fj.top",
+    "label": "phishing",
+    "score": 0.8591304347826088,
+    "confidence": 0.42000000000000004,
+    "timeMs": 731
+  },
+  "tkshop4io.top": {
+    "domain": "tkshop4io.top",
+    "label": "phishing",
+    "score": 0.8591304347826088,
+    "confidence": 0.42000000000000004,
+    "timeMs": 730
+  },
+  "tkshop5yi.top": {
+    "domain": "tkshop5yi.top",
+    "label": "phishing",
+    "score": 0.8591304347826088,
+    "confidence": 0.42000000000000004,
+    "timeMs": 744
+  },
+  "tkshop9az.top": {
+    "domain": "tkshop9az.top",
+    "label": "phishing",
+    "score": 0.8591304347826088,
+    "confidence": 0.42000000000000004,
+    "timeMs": 734
+  },
+  "2bw0.info": {
+    "domain": "2bw0.info",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 651
+  },
+  "2s88.info": {
+    "domain": "2s88.info",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 810
+  },
+  "verifiedreserve.com": {
+    "domain": "verifiedreserve.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 304
+  },
+  "vercel.app": {
+    "domain": "vercel.app",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 478
+  },
+  "leeminjae.xyz": {
+    "domain": "leeminjae.xyz",
+    "label": "phishing",
+    "score": 0.8591304347826088,
+    "confidence": 0.42000000000000004,
+    "timeMs": 759
+  },
+  "steamcommunilty.com": {
+    "domain": "steamcommunilty.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 355
+  },
+  "climbathy.click": {
+    "domain": "climbathy.click",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 459
+  },
+  "on-fleek.app": {
+    "domain": "on-fleek.app",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 180
+  },
+  "whatsappget.com": {
+    "domain": "whatsappget.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 309
+  },
+  "b45078.com": {
+    "domain": "b45078.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 1315
+  },
+  "riszq.com": {
+    "domain": "riszq.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 310
+  },
+  "netlify.app": {
+    "domain": "netlify.app",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 435
+  },
+  "confirmation-id-57291.com": {
+    "domain": "confirmation-id-57291.com",
+    "label": "phishing",
+    "score": 0.8591304347826088,
+    "confidence": 0.42000000000000004,
+    "timeMs": 415
+  },
+  "framer.ai": {
+    "domain": "framer.ai",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 351
+  },
+  "dpdns.org": {
+    "domain": "dpdns.org",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 3159
+  },
+  "facebookstartopup.info": {
+    "domain": "facebookstartopup.info",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 1630
+  },
+  "web.app": {
+    "domain": "web.app",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 1068
+  },
+  "framer.app": {
+    "domain": "framer.app",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 355
+  },
+  "beget.tech": {
+    "domain": "beget.tech",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 3161
+  },
+  "2nll.info": {
+    "domain": "2nll.info",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 595
+  },
+  "b45094.com": {
+    "domain": "b45094.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 2875
+  },
+  "digitalmaillane.com": {
+    "domain": "digitalmaillane.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 3170
+  },
+  "b358.in": {
+    "domain": "b358.in",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 1883
+  },
+  "up-hthsport.com": {
+    "domain": "up-hthsport.com",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 175
+  },
+  "halalvarsity.org": {
+    "domain": "halalvarsity.org",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 720
+  },
+  "bilingual-kid.com": {
+    "domain": "bilingual-kid.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 328
+  },
+  "wixsite.com": {
+    "domain": "wixsite.com",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 153
+  },
+  "dhlexpress.ee": {
+    "domain": "dhlexpress.ee",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 497
+  },
+  "a24s.info": {
+    "domain": "a24s.info",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 582
+  },
+  "0k1r.info": {
+    "domain": "0k1r.info",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 585
+  },
+  "tokevpocket.com": {
+    "domain": "tokevpocket.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 823
+  },
+  "tikmaillnow.com": {
+    "domain": "tikmaillnow.com",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 503
+  },
+  "kugenbftrpro.sbs": {
+    "domain": "kugenbftrpro.sbs",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 3169
+  },
+  "team-pz.com": {
+    "domain": "team-pz.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 3161
+  },
+  "reggretyq.sbs": {
+    "domain": "reggretyq.sbs",
+    "label": "phishing",
+    "score": 0.8591304347826088,
+    "confidence": 0.42000000000000004,
+    "timeMs": 3165
+  },
+  "lnmxys.com": {
+    "domain": "lnmxys.com",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 170
+  },
+  "b45077.com": {
+    "domain": "b45077.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 1866
+  },
+  "my-sale.pro": {
+    "domain": "my-sale.pro",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 281
+  },
+  "cvlindia.com": {
+    "domain": "cvlindia.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 1009
+  },
+  "blogspot.com": {
+    "domain": "blogspot.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 763
+  },
+  "pancake.run": {
+    "domain": "pancake.run",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 298
+  },
+  "com.ge": {
+    "domain": "com.ge",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 159
+  },
+  "servirtual.cl": {
+    "domain": "servirtual.cl",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 256
+  },
+  "bet73ff.com": {
+    "domain": "bet73ff.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 2386
+  },
+  "abaqa.com": {
+    "domain": "abaqa.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 1213
+  },
+  "t.co": {
+    "domain": "t.co",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 346
+  },
+  "3656l.co": {
+    "domain": "3656l.co",
+    "label": "phishing",
+    "score": 0.9373913043478261,
+    "confidence": 0.42000000000000004,
+    "timeMs": 158
+  },
+  "tk579.top": {
+    "domain": "tk579.top",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 223
+  },
+  "fldelltytextservicea.world": {
+    "domain": "fldelltytextservicea.world",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 677
+  },
+  "fldelitytextservicea.world": {
+    "domain": "fldelitytextservicea.world",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 697
+  },
+  "fldeiltytextservicea.world": {
+    "domain": "fldeiltytextservicea.world",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 677
+  },
+  "s-host.net": {
+    "domain": "s-host.net",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 282
+  },
+  "kkmxxw.com": {
+    "domain": "kkmxxw.com",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 151
+  },
+  "fidelityportfolloknowledge.lat": {
+    "domain": "fidelityportfolloknowledge.lat",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 844
+  },
+  "imtokm.app": {
+    "domain": "imtokm.app",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 721
+  },
+  "insz.us": {
+    "domain": "insz.us",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 181
+  },
+  "roblox.gs": {
+    "domain": "roblox.gs",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 302
+  },
+  "kortin.click": {
+    "domain": "kortin.click",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 320
+  },
+  "app-trezor-info.live": {
+    "domain": "app-trezor-info.live",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 298
+  },
+  "eu.org": {
+    "domain": "eu.org",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 244
+  },
+  "lumxza.com": {
+    "domain": "lumxza.com",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 147
+  },
+  "typedream.app": {
+    "domain": "typedream.app",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 325
+  },
+  "fyqn9810la0y.com:9229": {
+    "domain": "fyqn9810la0y.com:9229",
+    "label": "phishing",
+    "score": 0.5895652173913044,
+    "confidence": 0.42000000000000004,
+    "timeMs": 160
+  },
+  "lnk.ink": {
+    "domain": "lnk.ink",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 816
+  },
+  "roblox.tc": {
+    "domain": "roblox.tc",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 683
+  },
+  "fidelitytextservicea.world": {
+    "domain": "fidelitytextservicea.world",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 671
+  },
+  "rnwritenow.com": {
+    "domain": "rnwritenow.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 1337
+  },
+  "fidelltyportfoiioknowiedge.lat": {
+    "domain": "fidelltyportfoiioknowiedge.lat",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 694
+  },
+  "dhlrewardscards.com": {
+    "domain": "dhlrewardscards.com",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 548
+  },
+  "fidelityportfolioknowiedge.lat": {
+    "domain": "fidelityportfolioknowiedge.lat",
+    "label": "phishing",
+    "score": 0.5113043478260869,
+    "confidence": 0.42000000000000004,
+    "timeMs": 755
+  }
+}
