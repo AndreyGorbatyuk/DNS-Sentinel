@@ -34,3 +34,4 @@ if (typeof globalThis !== 'undefined' && !globalThis.chrome) {
 	};
 }
 
+

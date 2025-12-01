@@ -236,10 +236,24 @@ async function main() {
 		});
 		logProgress('✓ API keys configured\n');
 	}
+
+	// Determine which dataset to benchmark.
+	// Usage examples:
+	//   pnpm run dataset:bench                -> uses test_40k.csv (default)
+	//   pnpm run dataset:bench -- test_3k.csv -> uses test_3k.csv
+	const args = process.argv.slice(2).filter(a => a !== '--');
+	const datasetFile = args[0] && !args[0].startsWith('-') ? args[0] : 'test_40k.csv';
+
+	const datasetPath = join(__dirname, '..', 'dataset', datasetFile);
+
+	// Derive suffix for results/report filenames based on dataset name
+	const baseName = datasetFile.replace(/\.csv$/i, '');
+	const suffix = baseName ? `_${baseName}` : '';
+
+	const resultsPath = join(__dirname, '..', 'dataset', `results${suffix}.json`);
+	const reportPath = join(__dirname, '..', 'dataset', `BENCHMARK_REPORT${suffix}.md`);
 	
-	const datasetPath = join(__dirname, '..', 'dataset', 'test_40k.csv');
-	const resultsPath = join(__dirname, '..', 'dataset', 'results_40k.json');
-	const reportPath = join(__dirname, '..', 'dataset', 'BENCHMARK_REPORT.md');
+	logProgress(`Using dataset file: ${datasetFile}`);
 	
 	logProgress('Loading dataset...');
 	const dataset = await loadDataset(datasetPath);
